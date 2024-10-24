@@ -32,5 +32,10 @@ namespace UI_Project
             Login login = new Login();
             login.Show();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

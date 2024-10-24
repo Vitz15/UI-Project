@@ -100,5 +100,112 @@ namespace UI_Project
             Login login = new Login();
             login.Show();
         }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Dashboard_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label12_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label32_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label31_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label30_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label28_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label27_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label26_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label33_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label17_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label39_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+            StockManagement stok = new StockManagement();
+            stok.Show();
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            Drugandstock drug = new Drugandstock();
+            drug.Show();
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            Salestransaction sales = new Salestransaction();
+            sales.Show();
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            CustomerM customer = new CustomerM();
+            customer.Show();
+        }
+
+        private void pictureBox4_Click(object sender, EventArgs e)
+        {
+            FinancialS financial = new FinancialS();
+            financial.Show();
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+            StockManagement stock = new StockManagement();
+            stock.Show();
+        }
+
+        private void pictureBox5_Click(object sender, EventArgs e)
+        {
+            StockManagement stock = new StockManagement();
+            stock.Show();
+        }
     }
 }

@@ -7,13 +7,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MySql.Data;
+using MySql.Data.MySqlClient;
 
 namespace UI_Project
 {
     public partial class Login : Form
     {
+        private MySqlConnection koneksi;
+        private MySqlDataAdapter adapter;
+        private MySqlCommand perintah;
+
+        private DataSet ds = new DataSet();
+        private string alamat, query;
         public Login()
         {
+            alamat = "server=localhost; database=db_apotek; username=root; password=;";
+            koneksi = new MySqlConnection(alamat);
             InitializeComponent();
         }
 
@@ -39,20 +49,51 @@ namespace UI_Project
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Dashboard dashboard = new Dashboard();
-            dashboard.Show();
-        }
-   
-        private void label6_Click(object sender, EventArgs e)
-        {
-            Forgotpass forgot = new Forgotpass();
-            forgot.Show();
+            try
+            {
+                query = string.Format("select * from admin where username = '{0}'", txtUsername.Text);
+                ds.Clear();
+                koneksi.Open();
+
+                perintah = new MySqlCommand(query, koneksi);
+                adapter = new MySqlDataAdapter(perintah);
+
+                adapter.Fill(ds);
+
+                koneksi.Close();
+
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow kolom in ds.Tables[0].Rows)
+                    {
+                        string sandi;
+                        sandi = kolom["password"].ToString();
+                        if (sandi == txtPassword.Text)
+                        {
+                            Dashboard dashboard = new Dashboard();
+                            dashboard.Show();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Anda salah input password");
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Username tidak ditemukan");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
-        private void label7_Click(object sender, EventArgs e)
+        private void label4_Click_1(object sender, EventArgs e)
         {
-            Createaccount createaccount = new Createaccount();
-            createaccount.Show();
+
         }
+
     }
 }

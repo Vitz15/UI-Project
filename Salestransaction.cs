@@ -7,44 +7,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
+using MySql.Data;
+using MySql.Data.MySqlClient;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace UI_Project
 {
     public partial class Salestransaction : Form
     {
+        private MySqlConnection koneksi;
+        private MySqlDataAdapter adapter;
+        private MySqlCommand perintah;
+        private DataSet ds = new DataSet();
+        private string alamat, query;
         public Salestransaction()
         {
+            alamat = "server=localhost; database=db_apotek; username=root; password=; Convert Zero Datetime=True; Allow Zero Datetime=True;";
+            koneksi = new MySqlConnection(alamat);
             InitializeComponent();
-            string[] baris = new string[4];
-            ListViewItem item;
-            baris[0] = "Paracetamol";
-            baris[1] = "2.300";
-            baris[2] = "2";
-            baris[3] = "Rp5.600,00";
-
-            item = new ListViewItem(baris);
-            listView1.Items.Add(item);
-
-            string[] baris2 = new string[4];
-            ListViewItem item2;
-            baris2[0] = "Ibuprofen";
-            baris2[1] = "2.600";
-            baris2[2] = "10";
-            baris2[3] = "Rp26.000,00";
-
-            item = new ListViewItem(baris2);
-            listView1.Items.Add(item);
-
-            string[] baris3 = new string[4];
-            ListViewItem item3;
-            baris3[0] = "Antasida";
-            baris3[1] = "1.300";
-            baris3[2] = "10";
-            baris3[3] = "Rp13.000,00";
-
-            item = new ListViewItem(baris3);
-            listView1.Items.Add(item);
+           
         }
 
         private void label3_Click(object sender, EventArgs e)
@@ -61,32 +43,11 @@ namespace UI_Project
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string[] baris = new string[4];
-            ListViewItem item;
-
-            // Ambil nilai dari TextBox
-            baris[0] = textBox2.Text; // Nama obat
-            baris[1] = textBox3.Text; // Jumlah
-            baris[2] = textBox1.Text; // Harga per unit
-            baris[3] = textBox4.Text; // Total harga
-
-            // Buat item baru dan tambahkan ke ListView
-            item = new ListViewItem(baris);
-            listView1.Items.Add(item);
-
-            // Kosongkan form setelah menambahkan item
-            clearform();
+            
         }
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listView1.SelectedItems.Count > 0)
-            {
-                ListViewItem selectedItem = listView1.SelectedItems[0];
-                textBox2.Text = selectedItem.SubItems[0].Text;
-                textBox1.Text = selectedItem.SubItems[1].Text;
-                textBox3.Text = selectedItem.SubItems[2].Text;
-                textBox4.Text = selectedItem.SubItems[3].Text;
-            }
+           
         }
         private void clearform()
         {
@@ -98,16 +59,7 @@ namespace UI_Project
         }
         private void button2_Click(object sender, EventArgs e)
         {
-            if (listView1.SelectedItems.Count > 0)
-            {
-                listView1.Items.Remove(listView1.SelectedItems[0]);
-
-                clearform();
-            }
-            else
-            {
-                MessageBox.Show("Pilih baris yang ingin dihapus.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+           
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
@@ -168,6 +120,37 @@ namespace UI_Project
         {
             Login login = new Login();
             login.Show();
+        }
+
+        private void Salestransaction_Load(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox7_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label11_Click_1(object sender, EventArgs e)
+        {
+            StockManagement stok = new StockManagement();
+            stok.Show();
         }
     }
 }
