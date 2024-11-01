@@ -45,6 +45,9 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.label10 = new System.Windows.Forms.Label();
+            this.comboBoxMonth = new System.Windows.Forms.ComboBox();
+            this.comboBoxYear = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -55,7 +58,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(1459, 60);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(381, 39);
+            this.label1.Size = new System.Drawing.Size(370, 38);
             this.label1.TabIndex = 58;
             this.label1.Text = "AzureGreen Pharmacy";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -69,7 +72,7 @@
             this.label6.ForeColor = System.Drawing.Color.Black;
             this.label6.Location = new System.Drawing.Point(494, 60);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(355, 39);
+            this.label6.Size = new System.Drawing.Size(341, 38);
             this.label6.TabIndex = 65;
             this.label6.Text = "Financial Statements";
             // 
@@ -121,6 +124,7 @@
             this.label3.Size = new System.Drawing.Size(219, 29);
             this.label3.TabIndex = 99;
             this.label3.Text = "Stock Management";
+            this.label3.Click += new System.EventHandler(this.label3_Click_1);
             // 
             // label40
             // 
@@ -128,11 +132,12 @@
             this.label40.BackColor = System.Drawing.Color.Transparent;
             this.label40.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label40.ForeColor = System.Drawing.Color.White;
-            this.label40.Location = new System.Drawing.Point(28, 602);
+            this.label40.Location = new System.Drawing.Point(28, 674);
             this.label40.Name = "label40";
             this.label40.Size = new System.Drawing.Size(98, 29);
             this.label40.TabIndex = 98;
             this.label40.Text = "Log Out";
+            this.label40.Click += new System.EventHandler(this.label40_Click_1);
             // 
             // label38
             // 
@@ -145,6 +150,7 @@
             this.label38.Size = new System.Drawing.Size(218, 29);
             this.label38.TabIndex = 97;
             this.label38.Text = "Sales Transactions";
+            this.label38.Click += new System.EventHandler(this.label38_Click_1);
             // 
             // label37
             // 
@@ -169,6 +175,7 @@
             this.label36.Size = new System.Drawing.Size(263, 29);
             this.label36.TabIndex = 95;
             this.label36.Text = "Customer Management";
+            this.label36.Click += new System.EventHandler(this.label36_Click_1);
             // 
             // label4
             // 
@@ -181,6 +188,7 @@
             this.label4.Size = new System.Drawing.Size(117, 29);
             this.label4.TabIndex = 94;
             this.label4.Text = "Drug data";
+            this.label4.Click += new System.EventHandler(this.label4_Click_1);
             // 
             // label5
             // 
@@ -193,6 +201,7 @@
             this.label5.Size = new System.Drawing.Size(131, 29);
             this.label5.TabIndex = 93;
             this.label5.Text = "Dashboard";
+            this.label5.Click += new System.EventHandler(this.label5_Click);
             // 
             // dataGridView1
             // 
@@ -238,6 +247,35 @@
             this.button4.UseVisualStyleBackColor = false;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.BackColor = System.Drawing.Color.Transparent;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.ForeColor = System.Drawing.Color.White;
+            this.label10.Location = new System.Drawing.Point(28, 602);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(165, 29);
+            this.label10.TabIndex = 104;
+            this.label10.Text = "Drug Disposal";
+            this.label10.Click += new System.EventHandler(this.label10_Click);
+            // 
+            // comboBoxMonth
+            // 
+            this.comboBoxMonth.FormattingEnabled = true;
+            this.comboBoxMonth.Location = new System.Drawing.Point(1177, 256);
+            this.comboBoxMonth.Name = "comboBoxMonth";
+            this.comboBoxMonth.Size = new System.Drawing.Size(159, 24);
+            this.comboBoxMonth.TabIndex = 105;
+            // 
+            // comboBoxYear
+            // 
+            this.comboBoxYear.FormattingEnabled = true;
+            this.comboBoxYear.Location = new System.Drawing.Point(1353, 256);
+            this.comboBoxYear.Name = "comboBoxYear";
+            this.comboBoxYear.Size = new System.Drawing.Size(159, 24);
+            this.comboBoxYear.TabIndex = 106;
+            // 
             // FinancialS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -245,6 +283,9 @@
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1902, 1033);
+            this.Controls.Add(this.comboBoxYear);
+            this.Controls.Add(this.comboBoxMonth);
+            this.Controls.Add(this.label10);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.button5);
@@ -289,5 +330,8 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.ComboBox comboBoxMonth;
+        private System.Windows.Forms.ComboBox comboBoxYear;
     }
 }

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace UI_Project
 {
@@ -106,7 +107,7 @@ namespace UI_Project
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-
+            
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -184,8 +185,66 @@ namespace UI_Project
             customer.Show();
         }
 
+
+        private void MoveExpiredMedicines()
+        {
+            try
+            {
+                using (koneksi)
+                {
+                    koneksi.Open();
+
+                    // Mengambil obat yang sudah kadaluarsa
+                    string selectQuery = "SELECT id_obat, nama_obat, stok, harga_jual, tanggal_kadaluarsa, kategori, satuan, deskripsi FROM obat WHERE tanggal_kadaluarsa < @currentDate";
+                    using (MySqlCommand perintah = new MySqlCommand(selectQuery, koneksi))
+                    {
+                        perintah.Parameters.AddWithValue("@currentDate", DateTime.Now);
+                        using (MySqlDataAdapter adapter = new MySqlDataAdapter(perintah))
+                        {
+                            DataTable expiredMedicines = new DataTable();
+                            adapter.Fill(expiredMedicines);
+
+                            // Memindahkan ke tabel pemusnahan
+                            foreach (DataRow row in expiredMedicines.Rows)
+                            {
+                                DateTime expiredDate = Convert.ToDateTime(row["tanggal_kadaluarsa"]);
+                                string insertQuery = "INSERT INTO pemusnahan (nama_obat, tgl_kadaluarsa, jumlah) VALUES (@nama_obat, @tgl_kadaluarsa, @jumlah)";
+                                using (MySqlCommand insertCommand = new MySqlCommand(insertQuery, koneksi))
+                                {
+                                    insertCommand.Parameters.AddWithValue("@nama_obat", row["nama_obat"]);
+                                    insertCommand.Parameters.AddWithValue("@tgl_kadaluarsa", expiredDate); // Gunakan nama kolom dari tabel obat
+                                    insertCommand.Parameters.AddWithValue("@jumlah", row["stok"]); // Ganti "jumlah" dengan "stok" jika itu kolom yang tepat
+
+                                    insertCommand.ExecuteNonQuery();
+                                }
+                            }
+
+                            // Menghapus obat kadaluarsa dari tabel obat dan tabel stok
+                            if (expiredMedicines.Rows.Count > 0)
+                            {
+                                string deleteObatQuery = "DELETE FROM obat WHERE tanggal_kadaluarsa < @currentDate";
+                                using (MySqlCommand deleteObatCommand = new MySqlCommand(deleteObatQuery, koneksi))
+                                {
+                                    deleteObatCommand.Parameters.AddWithValue("@currentDate", DateTime.Now);
+                                    deleteObatCommand.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+
+
+
         private void Drugandstock_Load(object sender, EventArgs e)
         {
+            MoveExpiredMedicines();
             try
             {
                 koneksi.Open();
@@ -381,6 +440,12 @@ namespace UI_Project
         {
             StockManagement stok = new StockManagement();
             stok.Show();
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+            drugDisposal dis = new drugDisposal();
+            dis.Show();
         }
 
         private void label2_Click(object sender, EventArgs e)

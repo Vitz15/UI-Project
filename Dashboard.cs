@@ -207,5 +207,28 @@ namespace UI_Project
             StockManagement stock = new StockManagement();
             stock.Show();
         }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+            drugDisposal disposal = new drugDisposal();
+            disposal.Show();
+        }
+
+        private void pictureBox6_Click(object sender, EventArgs e)
+        {
+            drugDisposal disposal = new drugDisposal();
+            disposal.Show();
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+            drugDisposal dis = new drugDisposal();
+            dis.Show();
+        }
     }
 }

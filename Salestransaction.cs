@@ -43,23 +43,132 @@ namespace UI_Project
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
+            try
+            {
+                if (textBox1.Text != "")
+                {
+                    string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
+
+                    // Use parameterized query for inserting transaction
+                    query = "INSERT INTO transaksi (id_transaksi, nama_pelanggan, nama_obat, tgl_transaksi, jumlah, harga_satuan, total_harga) " +
+                            "VALUES (@id, @pelanggan, @obat, @tgl, @jmlh, @harga_satu, @total_harga);";
+
+                    koneksi.Open();
+                    perintah = new MySqlCommand(query, koneksi);
+
+                    // Adding parameters to the insert query
+                    perintah.Parameters.AddWithValue("@id", textBox7.Text);
+                    perintah.Parameters.AddWithValue("@tgl", formattedDate);
+                    perintah.Parameters.AddWithValue("@pelanggan", comboBox2.Text);
+                    perintah.Parameters.AddWithValue("@obat", comboBox1.Text);
+                    perintah.Parameters.AddWithValue("@jmlh", textBox1.Text);
+                    perintah.Parameters.AddWithValue("@harga_satu", textBox3.Text);
+                    perintah.Parameters.AddWithValue("@total_harga", textBox4.Text);
+
+                    // Execute insert query
+                    int res = perintah.ExecuteNonQuery();
+
+                    // Now, update the stock in the obat table
+                    if (res == 1)
+                    {
+                        // Update stock in the stok_masuk table
+                        string updateStockMasukQuery = "UPDATE stok_masuk SET jumlah = jumlah - @jmlh WHERE nama_obat = @nama;";
+                        MySqlCommand updateStockMasukCommand = new MySqlCommand(updateStockMasukQuery, koneksi);
+                        updateStockMasukCommand.Parameters.AddWithValue("@jmlh", Convert.ToDecimal(textBox1.Text)); // Amount sold
+                        updateStockMasukCommand.Parameters.AddWithValue("@nama", comboBox1.Text); // Selected drug name
+
+                        // Execute update for stok_masuk
+                        int stockMasukUpdateRes = updateStockMasukCommand.ExecuteNonQuery();
+
+                        // If stok_masuk was updated successfully, update the obat table
+                        if (stockMasukUpdateRes > 0)
+                        {
+                            // Update stock in the obat table
+                            string updateObatQuery = "UPDATE obat SET stok = stok - @jmlh WHERE nama_obat = @nama;";
+                            MySqlCommand updateObatCommand = new MySqlCommand(updateObatQuery, koneksi);
+                            updateObatCommand.Parameters.AddWithValue("@jmlh", Convert.ToDecimal(textBox1.Text));
+                            updateObatCommand.Parameters.AddWithValue("@nama", comboBox1.Text);
+
+                            // Execute update for obat table
+                            int obatUpdateRes = updateObatCommand.ExecuteNonQuery();
+
+                            if (obatUpdateRes > 0)
+                            {
+                                MessageBox.Show("Insert Data Sukses dan Stok Berhasil di update.");
+                            }
+                            else
+                            {
+                                MessageBox.Show("Insert Data Sukses tetapi gagal memperbarui stok");
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Insert Data Sukses ... tetapi gagal memperbarui stok pada tabel stok_masuk.");
+                        }
+
+                        // Refresh the DataGridView
+                        Salestransaction_Load(null, null);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Gagal Insert Data . . . ");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Data Tidak Lengkap!!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                koneksi.Close(); // Ensure the connection is closed
+            }
+
         }
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
         {
            
         }
-        private void clearform()
-        {
-            textBox2.Text = "";
-            textBox1.Text = "";
-            textBox3.Text = "";
-            textBox4.Text = "";
-
-        }
+   
         private void button2_Click(object sender, EventArgs e)
         {
-           
+            try
+            {
+                if (textBox1.Text != "")
+                {
+                    if (MessageBox.Show("Anda Yakin Menghapus Data Ini ??", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        query = string.Format("Delete from transaksi where id_transaksi = '{0}'", textBox7.Text);
+                        ds.Clear();
+                        koneksi.Open();
+                        perintah = new MySqlCommand(query, koneksi);
+                        adapter = new MySqlDataAdapter(perintah);
+                        int res = perintah.ExecuteNonQuery();
+                        koneksi.Close();
+                        if (res == 1)
+                        {
+                            MessageBox.Show("Delete Data Suksess ...");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Gagal Delete data");
+                        }
+                    }
+                    Salestransaction_Load(null, null);
+                }
+                else
+                {
+                    MessageBox.Show("Data Yang Anda Pilih Tidak Ada !!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
@@ -94,16 +203,6 @@ namespace UI_Project
 
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Proses Pembayaran Berhasil", "Payment Success", MessageBoxButtons.OK, MessageBoxIcon.None);
-        }
-
         private void label36_Click(object sender, EventArgs e)
         {
             CustomerM customer = new CustomerM();
@@ -124,7 +223,98 @@ namespace UI_Project
 
         private void Salestransaction_Load(object sender, EventArgs e)
         {
-            
+            try
+            {
+                // Pastikan koneksi ditutup sebelum membuka yang baru
+                if (koneksi.State == ConnectionState.Open)
+                {
+                    koneksi.Close();
+                }
+
+                koneksi.Open();
+                query = "SELECT id_transaksi, nama_pelanggan, nama_obat, tgl_transaksi, jumlah, harga_satuan, total_harga FROM transaksi ORDER BY id_transaksi ASC";
+                perintah = new MySqlCommand(query, koneksi);
+                adapter = new MySqlDataAdapter(perintah);
+
+                MySqlCommandBuilder commandBuilder = new MySqlCommandBuilder(adapter);
+
+                ds.Clear();
+                adapter.Fill(ds);
+                koneksi.Close();  // Tutup koneksi setelah selesai dengan data transaksi
+                dataGridView1.DataSource = ds.Tables[0];
+
+                // Atur lebar dan header kolom
+                dataGridView1.Columns[0].Width = 100;
+                dataGridView1.Columns[0].HeaderText = "Transaction Id";
+
+                dataGridView1.Columns[1].Width = 170;
+                dataGridView1.Columns[1].HeaderText = "Customer Name";
+
+                dataGridView1.Columns[2].Width = 170;
+                dataGridView1.Columns[2].HeaderText = "Drug Name";
+
+                dataGridView1.Columns[3].Width = 170;
+                dataGridView1.Columns[3].HeaderText = "Date"; // Kolom tanggal
+
+                dataGridView1.Columns[4].Width = 170;
+                dataGridView1.Columns[4].HeaderText = "Amount";
+
+                dataGridView1.Columns[5].Width = 170;
+                dataGridView1.Columns[5].HeaderText = "Price";
+
+                dataGridView1.Columns[6].Width = 157;
+                dataGridView1.Columns[6].HeaderText = "Total Price";
+
+                // Pengisian data ComboBox
+                comboBox1.Items.Clear();
+                comboBox2.Items.Clear();
+
+                // Buka koneksi baru untuk mengambil data obat
+                koneksi.Open();
+                string queryObat = "SELECT DISTINCT nama_obat FROM stok_masuk";
+                perintah = new MySqlCommand(queryObat, koneksi);
+                MySqlDataReader reader = perintah.ExecuteReader();
+
+                // Menambahkan nama obat ke ComboBox
+                while (reader.Read())
+                {
+                    comboBox1.Items.Add(reader["nama_obat"].ToString());
+                }
+                reader.Close();
+
+                // Query untuk mengambil nama pelanggan
+                string queryPelangganCombined = @"
+                SELECT DISTINCT nama_pelanggan FROM pelanggan
+                UNION
+                SELECT DISTINCT nama_pelanggan FROM pelanggan_umum";
+
+                perintah = new MySqlCommand(queryPelangganCombined, koneksi);
+                reader = perintah.ExecuteReader();
+
+                // Add customer names to ComboBox2
+                while (reader.Read())
+                {
+                    comboBox2.Items.Add(reader["nama_pelanggan"].ToString());
+                }
+                reader.Close();
+                koneksi.Close();
+
+                // Reset form inputs
+                dateTimePicker1.Value = DateTime.Now;
+                textBox3.Clear();
+                textBox1.Clear();
+                textBox4.Clear();
+                button5.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                if (koneksi.State == ConnectionState.Open)
+                {
+                    koneksi.Close();
+                }
+            }
+
         }
 
         private void label11_Click(object sender, EventArgs e)
@@ -145,6 +335,187 @@ namespace UI_Project
         private void textBox7_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                // Pastikan ComboBox memiliki nilai terpilih
+                if (comboBox1.SelectedItem != null)
+                {
+                    // Query untuk mendapatkan stok dan harga jual berdasarkan nama obat yang dipilih
+                    string query = "SELECT stok, harga_jual FROM obat WHERE nama_obat = @nama_obat";
+                    MySqlCommand command = new MySqlCommand(query, koneksi);
+                    command.Parameters.AddWithValue("@nama_obat", comboBox1.SelectedItem.ToString());
+
+                    // Buka koneksi
+                    koneksi.Open();
+
+                    // Eksekusi query dan ambil stok dan harga jual
+                    MySqlDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        // Tampilkan stok di TextBox (misalnya textBox4)
+                        textBox4.Text = reader["stok"].ToString();
+
+                        // Tampilkan harga jual di TextBox (misalnya textBoxHargaJual)
+                        textBox3.Text = reader["harga_jual"].ToString();
+                    }
+                    else
+                    {
+                        // Jika tidak ada hasil, setel TextBox ke 0 atau kosong
+                        textBox4.Text = "0";
+                        textBox3.Text = "0";
+                    }
+
+                    // Tutup reader setelah selesai
+                    reader.Close();
+
+                    // Tutup koneksi setelah selesai
+                    koneksi.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Terjadi kesalahan: " + ex.Message);
+                if (koneksi.State == ConnectionState.Open)
+                {
+                    koneksi.Close();
+                }
+            }
+        }
+
+        private void label38_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Salestransaction_Load(null, null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (textBox6.Text != "")
+                {
+                    query = string.Format("select * from transaksi where nama_pelanggan = '{0}'", textBox6.Text);
+                    ds.Clear();
+                    koneksi.Open();
+                    perintah = new MySqlCommand(query, koneksi);
+                    adapter = new MySqlDataAdapter(perintah);
+                    perintah.ExecuteNonQuery();
+                    adapter.Fill(ds);
+                    koneksi.Close();
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow kolom in ds.Tables[0].Rows)
+                        {
+                            textBox7.Text = kolom["id_transaksi"].ToString();
+                            comboBox2.Text = kolom["nama_pelanggan"].ToString();
+                            comboBox1.Text = kolom["nama_obat"].ToString();
+                            textBox1.Text = kolom["jumlah"].ToString();
+                            textBox3.Text = kolom["harga_satuan"].ToString();
+                            textBox4.Text = kolom["total_harga"].ToString();
+
+                        }
+                        textBox6.Enabled = true;
+                        dataGridView1.DataSource = ds.Tables[0];
+                        button5.Enabled = true;
+                        button4.Enabled = true;
+                        button3.Enabled = true;
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("Data Tidak Ada !!");
+                        Salestransaction_Load(null, null);
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("Data Yang Anda Pilih Tidak Ada !!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (textBox7.Text != "" && comboBox2.Text != "" && comboBox1.Text != "" && textBox1.Text != "" && textBox3.Text != "" && textBox4.Text != "" )
+                {
+                    string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
+
+                    query = "UPDATE transaksi SET nama_pelanggan = @pelanggan, nama_obat = @obat, tgl_transaksi = @tgl, jumlah = @jumlah, harga_satuan = @hargasatu, total_harga = @total WHERE id_transaksi = @id";
+
+                    koneksi.Open();
+                    perintah = new MySqlCommand(query, koneksi);
+
+                    // Menambahkan parameter ke query untuk mencegah SQL Injection
+
+                    perintah.Parameters.AddWithValue("@id", textBox7.Text);
+                    perintah.Parameters.AddWithValue("@pelanggan", comboBox2.Text);
+                    perintah.Parameters.AddWithValue("@obat", comboBox1.Text);
+                    perintah.Parameters.AddWithValue("@tgl", formattedDate);
+                    perintah.Parameters.AddWithValue("@jumlah", textBox1.Text);
+                    perintah.Parameters.AddWithValue("@hargasatu", textBox3.Text);
+                    perintah.Parameters.AddWithValue("@total", textBox4.Text);
+
+                    adapter = new MySqlDataAdapter(perintah);
+                    int res = perintah.ExecuteNonQuery();
+                    koneksi.Close();
+
+                    if (res == 1)
+                    {
+                        MessageBox.Show("Update Data Suksess ...");
+                        Salestransaction_Load(null, null);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Gagal Update Data . . . ");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Data Tidak lengkap !!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label14_Click(object sender, EventArgs e)
+        {
+            drugDisposal dis = new drugDisposal();
+            dis.Show();
         }
 
         private void label11_Click_1(object sender, EventArgs e)

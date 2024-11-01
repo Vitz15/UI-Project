@@ -68,6 +68,12 @@
     <Compile Include="Drugandstock.Designer.cs">
       <DependentUpon>Drugandstock.cs</DependentUpon>
     </Compile>
+    <Compile Include="drugDisposal.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="drugDisposal.Designer.cs">
+      <DependentUpon>drugDisposal.cs</DependentUpon>
+    </Compile>
     <Compile Include="FinancialS.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +106,12 @@
     <Compile Include="StockManagement.Designer.cs">
       <DependentUpon>StockManagement.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubscribedCostumer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubscribedCostumer.Designer.cs">
+      <DependentUpon>SubscribedCostumer.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="CustomerM.resx">
       <DependentUpon>CustomerM.cs</DependentUpon>
     </EmbeddedResource>
@@ -108,6 +120,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Drugandstock.resx">
       <DependentUpon>Drugandstock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="drugDisposal.resx">
+      <DependentUpon>drugDisposal.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FinancialS.resx">
       <DependentUpon>FinancialS.cs</DependentUpon>
@@ -132,6 +147,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="StockManagement.resx">
       <DependentUpon>StockManagement.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubscribedCostumer.resx">
+      <DependentUpon>SubscribedCostumer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
