@@ -272,7 +272,7 @@ namespace UI_Project
                 if (comboBox1.SelectedItem != null)
                 {
                     // Query untuk mendapatkan stok dan harga jual berdasarkan nama obat yang dipilih
-                    string query = "SELECT stok, harga_jual FROM obat WHERE nama_obat = @nama_obat";
+                    string query = "SELECT stok, harga_jual,tanggal_kadaluarsa FROM obat WHERE nama_obat = @nama_obat";
                     MySqlCommand command = new MySqlCommand(query, koneksi);
                     command.Parameters.AddWithValue("@nama_obat", comboBox1.SelectedItem.ToString());
 
@@ -288,12 +288,15 @@ namespace UI_Project
 
                         // Tampilkan harga jual di TextBox (misalnya textBoxHargaJual)
                         textBox3.Text = reader["harga_jual"].ToString();
+
+                        dateTimePicker1.Value = Convert.ToDateTime(reader["tanggal_kadaluarsa"]);
                     }
                     else
                     {
                         // Jika tidak ada hasil, setel TextBox ke 0 atau kosong
                         textBox4.Text = "0";
                         textBox3.Text = "0";
+                        dateTimePicker1.Value = DateTime.Today;
                     }
 
                     // Tutup reader setelah selesai
@@ -322,7 +325,7 @@ namespace UI_Project
             {
                 // Hitung total harga
                 decimal totalPrice = quantity * pricePerUnit;
-                textBox5.Text = totalPrice.ToString("C"); // Format sebagai mata uang
+                textBox5.Text = totalPrice.ToString(); // Format sebagai mata uang
             }
             else
             {
@@ -388,6 +391,12 @@ namespace UI_Project
             }
 
         }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void StockManagement_Load(object sender, EventArgs e)
         {
             MoveExpiredMedicines();

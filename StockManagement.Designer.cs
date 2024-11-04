@@ -232,9 +232,10 @@
             this.label5.ForeColor = System.Drawing.Color.Black;
             this.label5.Location = new System.Drawing.Point(508, 484);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(49, 20);
+            this.label5.Size = new System.Drawing.Size(118, 20);
             this.label5.TabIndex = 102;
-            this.label5.Text = "Date";
+            this.label5.Text = "Expired Date";
+            this.label5.Click += new System.EventHandler(this.label5_Click);
             // 
             // label9
             // 

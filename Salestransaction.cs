@@ -185,7 +185,7 @@ namespace UI_Project
             {
                 // Hitung total harga
                 decimal totalPrice = quantity * pricePerUnit;
-                textBox4.Text = totalPrice.ToString("C"); // Format sebagai mata uang
+                textBox4.Text = totalPrice.ToString(); // Format sebagai mata uang
             }
             else
             {

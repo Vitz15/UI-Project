@@ -110,53 +110,82 @@ namespace UI_Project
                 DateTime startDate = new DateTime(selectedYear, selectedMonth, 1);
                 DateTime endDate = startDate.AddMonths(1).AddDays(-1);
 
-                // Query untuk menghitung total pendapatan dari tabel transaksi
-                string revenueQuery = @"SELECT COALESCE(SUM(total_harga), 0) as total_pendapatan FROM transaksi WHERE tgl_transaksi >= @startDate AND tgl_transaksi <= @endDate";
-
-                // Query untuk menghitung total pengeluaran dari tabel stok_masuk
-                string expenseQuery = @"SELECT COALESCE(SUM(total_harga_beli), 0) as total_pengeluaran FROM stok_masuk WHERE tgl_masuk >= @startDate AND tgl_masuk <= @endDate";
+                DataTable dailyData = new DataTable();
+                dailyData.Columns.Add("Tanggal", typeof(string));
+                dailyData.Columns.Add("Total Pendapatan", typeof(decimal));
+                dailyData.Columns.Add("Total Pengeluaran", typeof(decimal));
+                dailyData.Columns.Add("Laba Bersih", typeof(decimal));
 
                 decimal totalPendapatan = 0;
                 decimal totalPengeluaran = 0;
 
-                // Menghitung total pendapatan
-                using (MySqlCommand cmdRevenue = new MySqlCommand(revenueQuery, koneksi))
+                // Loop melalui setiap hari dalam bulan
+                for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
                 {
-                    cmdRevenue.Parameters.AddWithValue("@startDate", startDate);
-                    cmdRevenue.Parameters.AddWithValue("@endDate", endDate);
-                    object result = cmdRevenue.ExecuteScalar();
-                    totalPendapatan = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+                    // Menghitung pendapatan
+                    string revenueQuery = @"SELECT SUM(total_harga) 
+                                         FROM transaksi 
+                                         WHERE DATE(tgl_transaksi) = @currentDate";
+
+                    decimal pendapatanHari = 0;
+                    using (MySqlCommand cmdRevenue = new MySqlCommand(revenueQuery, koneksi))
+                    {
+                        cmdRevenue.Parameters.AddWithValue("@currentDate", date);
+                        object result = cmdRevenue.ExecuteScalar();
+                        pendapatanHari = result == DBNull.Value ? 0 : Convert.ToDecimal(result);
+                    }
+
+                    // Menghitung pengeluaran
+                    string expensesQuery = @"SELECT SUM(total_harga_beli) 
+                                           FROM stok_masuk 
+                                           WHERE DATE(tgl_masuk) = @currentDate";
+
+                    decimal pengeluaranHari = 0;
+                    using (MySqlCommand cmdExpenses = new MySqlCommand(expensesQuery, koneksi))
+                    {
+                        cmdExpenses.Parameters.AddWithValue("@currentDate", date);
+                        object result = cmdExpenses.ExecuteScalar();
+                        pengeluaranHari = result == DBNull.Value ? 0 : Convert.ToDecimal(result);
+                    }
+
+                    decimal labaBersih = pendapatanHari - pengeluaranHari;
+
+                    // Menambahkan data harian ke DataTable
+                    dailyData.Rows.Add(
+                        date.ToString("yyyy-MM-dd"),
+                        pendapatanHari,
+                        pengeluaranHari,
+                        labaBersih
+                    );
+
+                    totalPendapatan += pendapatanHari;
+                    totalPengeluaran += pengeluaranHari;
                 }
 
-                // Menghitung total pengeluaran
-                using (MySqlCommand cmdExpense = new MySqlCommand(expenseQuery, koneksi))
+                // Menambahkan baris total
+                dailyData.Rows.Add("Total", totalPendapatan, totalPengeluaran, totalPendapatan - totalPengeluaran);
+
+                // Menampilkan data di DataGridView
+                dataGridView1.DataSource = dailyData;
+
+                // Simpan laporan keuangan
+                string insertQuery = @"INSERT INTO laporan_keuangan 
+                                     (tgl_laporan, total_pendapatan, total_pengeluaran, laba_bersih) 
+                                     VALUES (@Date, @Revenue, @Expenses, @NetProfit)";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, koneksi))
                 {
-                    cmdExpense.Parameters.AddWithValue("@startDate", startDate);
-                    cmdExpense.Parameters.AddWithValue("@endDate", endDate);
-                    object result = cmdExpense.ExecuteScalar();
-                    totalPengeluaran = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+                    cmd.Parameters.AddWithValue("@Date", endDate);
+                    cmd.Parameters.AddWithValue("@Revenue", totalPendapatan);
+                    cmd.Parameters.AddWithValue("@Expenses", totalPengeluaran);
+                    cmd.Parameters.AddWithValue("@NetProfit", totalPendapatan - totalPengeluaran);
+                    cmd.ExecuteNonQuery();
                 }
 
-                // Menghitung laba bersih
-                decimal labaBersih = totalPendapatan - totalPengeluaran;
-
-                // Menyimpan atau memperbarui data di tabel laporan_keuangan
-                string upsertQuery = @"INSERT INTO laporan_keuangan (tgl_laporan, total_pendapatan, total_pengeluaran, laba_bersih) VALUES (@tgl_laporan, @total_pendapatan, @total_pengeluaran, @laba_bersih) ON DUPLICATE KEY UPDATE total_pendapatan = VALUES(total_pendapatan), total_pengeluaran = VALUES(total_pengeluaran), laba_bersih = VALUES(laba_bersih)";
-
-                using (MySqlCommand cmdUpsert = new MySqlCommand(upsertQuery, koneksi))
-                {
-                    cmdUpsert.Parameters.AddWithValue("@tgl_laporan", startDate);
-                    cmdUpsert.Parameters.AddWithValue("@total_pendapatan", totalPendapatan);
-                    cmdUpsert.Parameters.AddWithValue("@total_pengeluaran", totalPengeluaran);
-                    cmdUpsert.Parameters.AddWithValue("@laba_bersih", labaBersih);
-                    cmdUpsert.ExecuteNonQuery();
-                }
-
-                // Tampilkan hasil di MessageBox untuk debugging
-                MessageBox.Show($"Periode: {startDate:yyyy/MM/dd} - {endDate:yyyy/MM/dd}\n" + $"Total Pendapatan: {totalPendapatan:N0}\n" + $"Total Pengeluaran: {totalPengeluaran:N0}\n" + $"Laba Bersih: {labaBersih:N0}");
-
-                // Refresh DataGridView
-                RefreshDataGridView();
+                // Tampilkan hasil total
+                MessageBox.Show($"Total Pendapatan: {totalPendapatan:N0}\n" +
+                              $"Total Pengeluaran: {totalPengeluaran:N0}\n" +
+                              $"Laba Bersih: {(totalPendapatan - totalPengeluaran):N0}");
             }
             catch (Exception ex)
             {
@@ -169,54 +198,9 @@ namespace UI_Project
                     koneksi.Close();
                 }
             }
+
         }
 
-        private void RefreshDataGridView()
-        {
-            try
-            {
-                if (koneksi.State != ConnectionState.Closed)
-                {
-                    koneksi.Close();
-                }
-                koneksi.Open();
-
-                query = @"
-            SELECT 
-                DATE_FORMAT(tgl_laporan, '%Y/%m/%d') as 'Tanggal Laporan',
-                total_pendapatan as 'Total Pendapatan',
-                total_pengeluaran as 'Total Pengeluaran',
-                laba_bersih as 'Laba Bersih'
-            FROM laporan_keuangan 
-            ORDER BY tgl_laporan DESC";
-
-                using (MySqlDataAdapter adapter = new MySqlDataAdapter(query, koneksi))
-                {
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt);
-                    dataGridView1.DataSource = dt;
-
-                    // Format currency untuk kolom nominal
-                    dataGridView1.Columns["Total Pendapatan"].DefaultCellStyle.Format = "N0";
-                    dataGridView1.Columns["Total Pengeluaran"].DefaultCellStyle.Format = "N0";
-                    dataGridView1.Columns["Laba Bersih"].DefaultCellStyle.Format = "N0";
-
-                    // Auto-size columns
-                    dataGridView1.AutoResizeColumns();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error refreshing data: " + ex.Message);
-            }
-            finally
-            {
-                if (koneksi.State != ConnectionState.Closed)
-                {
-                    koneksi.Close();
-                }
-            }
-        }
 
         private void comboBoxMonth_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -237,13 +221,13 @@ namespace UI_Project
         private void FinancialS_Load(object sender, EventArgs e)
         {
             string[] months = new string[]
-        {
-            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-        };
+            {
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            };
 
             comboBoxMonth.Items.AddRange(months);
-            comboBoxMonth.SelectedIndex = DateTime.Now.Month - 1; // Set to current month
+            comboBoxMonth.SelectedIndex = DateTime.Now.Month - 1;
 
             int currentYear = DateTime.Now.Year;
             for (int year = 2000; year <= currentYear; year++)
@@ -252,9 +236,8 @@ namespace UI_Project
             }
             comboBoxYear.SelectedItem = currentYear;
 
-            // Set column headers
             dataGridView1.AutoGenerateColumns = true;
-            RefreshDataGridView();
+
         }
 
     }
