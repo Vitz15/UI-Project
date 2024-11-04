@@ -212,6 +212,7 @@
             this.dataGridView1.RowTemplate.Height = 24;
             this.dataGridView1.Size = new System.Drawing.Size(1389, 661);
             this.dataGridView1.TabIndex = 100;
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
             // textBox3
             // 
@@ -243,7 +244,7 @@
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(275, 44);
             this.button4.TabIndex = 103;
-            this.button4.Text = "Print Report";
+            this.button4.Text = "Calculate";
             this.button4.UseVisualStyleBackColor = false;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
@@ -267,6 +268,7 @@
             this.comboBoxMonth.Name = "comboBoxMonth";
             this.comboBoxMonth.Size = new System.Drawing.Size(159, 24);
             this.comboBoxMonth.TabIndex = 105;
+            this.comboBoxMonth.SelectedIndexChanged += new System.EventHandler(this.comboBoxMonth_SelectedIndexChanged);
             // 
             // comboBoxYear
             // 
@@ -275,6 +277,7 @@
             this.comboBoxYear.Name = "comboBoxYear";
             this.comboBoxYear.Size = new System.Drawing.Size(159, 24);
             this.comboBoxYear.TabIndex = 106;
+            this.comboBoxYear.SelectedIndexChanged += new System.EventHandler(this.comboBoxYear_SelectedIndexChanged);
             // 
             // FinancialS
             // 

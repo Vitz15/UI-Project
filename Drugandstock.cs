@@ -194,8 +194,16 @@ namespace UI_Project
                 {
                     koneksi.Open();
 
+                    // Mengatur kolom deskripsi menjadi 'expired' untuk obat yang sudah kadaluarsa
+                    string updateDescriptionQuery = "UPDATE obat SET deskripsi = 'expired' WHERE tanggal_kadaluarsa < @currentDate";
+                    using (MySqlCommand updateCommand = new MySqlCommand(updateDescriptionQuery, koneksi))
+                    {
+                        updateCommand.Parameters.AddWithValue("@currentDate", DateTime.Now);
+                        updateCommand.ExecuteNonQuery();
+                    }
+
                     // Mengambil obat yang sudah kadaluarsa
-                    string selectQuery = "SELECT id_obat, nama_obat, stok, harga_jual, tanggal_kadaluarsa, kategori, satuan, deskripsi FROM obat WHERE tanggal_kadaluarsa < @currentDate";
+                    string selectQuery = "SELECT id_obat, nama_obat, stok, harga_jual, tanggal_kadaluarsa, kategori, satuan FROM obat WHERE tanggal_kadaluarsa < @currentDate";
                     using (MySqlCommand perintah = new MySqlCommand(selectQuery, koneksi))
                     {
                         perintah.Parameters.AddWithValue("@currentDate", DateTime.Now);
@@ -204,29 +212,36 @@ namespace UI_Project
                             DataTable expiredMedicines = new DataTable();
                             adapter.Fill(expiredMedicines);
 
-                            // Memindahkan ke tabel pemusnahan
+                            // Memindahkan ke tabel pemusnahan dengan deskripsi 'Expired'
                             foreach (DataRow row in expiredMedicines.Rows)
                             {
                                 DateTime expiredDate = Convert.ToDateTime(row["tanggal_kadaluarsa"]);
-                                string insertQuery = "INSERT INTO pemusnahan (nama_obat, tgl_kadaluarsa, jumlah) VALUES (@nama_obat, @tgl_kadaluarsa, @jumlah)";
+                                string insertQuery = "INSERT INTO pemusnahan (nama_obat, tgl_kadaluarsa, jumlah, deskripsi) VALUES (@nama_obat, @tgl_kadaluarsa, @jumlah, 'Expired')";
                                 using (MySqlCommand insertCommand = new MySqlCommand(insertQuery, koneksi))
                                 {
                                     insertCommand.Parameters.AddWithValue("@nama_obat", row["nama_obat"]);
-                                    insertCommand.Parameters.AddWithValue("@tgl_kadaluarsa", expiredDate); // Gunakan nama kolom dari tabel obat
-                                    insertCommand.Parameters.AddWithValue("@jumlah", row["stok"]); // Ganti "jumlah" dengan "stok" jika itu kolom yang tepat
+                                    insertCommand.Parameters.AddWithValue("@tgl_kadaluarsa", expiredDate);
+                                    insertCommand.Parameters.AddWithValue("@jumlah", row["stok"]);
 
                                     insertCommand.ExecuteNonQuery();
                                 }
                             }
 
-                            // Menghapus obat kadaluarsa dari tabel obat dan tabel stok
+                            // Menghapus obat kadaluarsa dari tabel obat
                             if (expiredMedicines.Rows.Count > 0)
                             {
+                                // Membuat daftar nama obat yang kadaluarsa dan menghitung total stok
+                                string expiredNames = string.Join(", ", expiredMedicines.AsEnumerable().Select(row => row["nama_obat"].ToString()));
+                                int totalExpiredStock = expiredMedicines.AsEnumerable().Sum(row => Convert.ToInt32(row["stok"]));
+
                                 string deleteObatQuery = "DELETE FROM obat WHERE tanggal_kadaluarsa < @currentDate";
                                 using (MySqlCommand deleteObatCommand = new MySqlCommand(deleteObatQuery, koneksi))
                                 {
                                     deleteObatCommand.Parameters.AddWithValue("@currentDate", DateTime.Now);
                                     deleteObatCommand.ExecuteNonQuery();
+
+                                    // Menampilkan notifikasi dengan nama obat dan total stok yang telah kadaluarsa
+                                    MessageBox.Show($"Nama obat yang kedaluwarsa: {expiredNames}\nTotal stok yang kedaluwarsa: {totalExpiredStock}", "Notifikasi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 }
                             }
                         }
@@ -237,7 +252,10 @@ namespace UI_Project
             {
                 MessageBox.Show("Error: " + ex.Message);
             }
+
         }
+
+
 
 
 
@@ -446,6 +464,11 @@ namespace UI_Project
         {
             drugDisposal dis = new drugDisposal();
             dis.Show();
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void label2_Click(object sender, EventArgs e)

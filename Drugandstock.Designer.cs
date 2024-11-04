@@ -149,9 +149,10 @@
             this.label6.ForeColor = System.Drawing.Color.Black;
             this.label6.Location = new System.Drawing.Point(494, 60);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(421, 38);
+            this.label6.Size = new System.Drawing.Size(175, 38);
             this.label6.TabIndex = 54;
-            this.label6.Text = "Medicine Stock Recording";
+            this.label6.Text = "Drug Data";
+            this.label6.Click += new System.EventHandler(this.label6_Click);
             // 
             // label8
             // 
