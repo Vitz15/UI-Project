@@ -61,6 +61,7 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.label14 = new System.Windows.Forms.Label();
+            this.button6 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -439,6 +440,20 @@
             this.label14.Text = "Drug Disposal";
             this.label14.Click += new System.EventHandler(this.label14_Click);
             // 
+            // button6
+            // 
+            this.button6.BackColor = System.Drawing.Color.DodgerBlue;
+            this.button6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button6.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.button6.Location = new System.Drawing.Point(1782, 214);
+            this.button6.Margin = new System.Windows.Forms.Padding(0);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(200, 44);
+            this.button6.TabIndex = 127;
+            this.button6.Text = "Print Struk";
+            this.button6.UseVisualStyleBackColor = false;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // Salestransaction
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -446,6 +461,7 @@
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1902, 1033);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.label14);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.comboBox1);
@@ -523,5 +539,6 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Button button6;
     }
 }

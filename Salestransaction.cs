@@ -271,7 +271,7 @@ namespace UI_Project
 
                 // Buka koneksi baru untuk mengambil data obat
                 koneksi.Open();
-                string queryObat = "SELECT DISTINCT nama_obat FROM stok_masuk";
+                string queryObat = "SELECT DISTINCT nama_obat FROM obat";
                 perintah = new MySqlCommand(queryObat, koneksi);
                 MySqlDataReader reader = perintah.ExecuteReader();
 
@@ -516,6 +516,12 @@ namespace UI_Project
         {
             drugDisposal dis = new drugDisposal();
             dis.Show();
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            strukPrintcs strukPrint = new strukPrintcs();
+            strukPrint.Show();
         }
 
         private void label11_Click_1(object sender, EventArgs e)

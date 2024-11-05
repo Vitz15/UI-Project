@@ -237,6 +237,16 @@ namespace UI_Project
             comboBoxYear.SelectedItem = currentYear;
 
             dataGridView1.AutoGenerateColumns = true;
+            if (dataGridView1.Columns.Count > 0)
+            {
+                dataGridView1.Columns[0].Width = 80; 
+                dataGridView1.Columns[1].Width = 295; 
+                dataGridView1.Columns[2].Width = 295;
+                dataGridView1.Columns[3].Width = 300;
+            }
+
+           
+            dataGridView1.RowTemplate.Height = 30; 
 
         }
 

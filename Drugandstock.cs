@@ -56,10 +56,11 @@ namespace UI_Project
                 if (textBox1.Text != "" && textBox2.Text != "" && textBox4.Text != "")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
+                    string formattedDate2 = dateTimePicker2.Value.ToString("yyyy-MM-dd");
 
                     // Gunakan parameterized query
-                    query = "INSERT INTO obat (id_obat, nama_obat, stok, harga_jual, tanggal_kadaluarsa, kategori, satuan, deskripsi) " +
-                            "VALUES (@id, @nama_obat, @stok, @harga_jual, @tanggal_kadaluarsa, @kategori, @satuan, @deskripsi);";
+                    query = "INSERT INTO obat (id_obat, nama_obat, stok, harga_jual,harga_beli_satuan, tanggal_kadaluarsa,tgl_masuk, kategori, satuan, deskripsi) " +
+                            "VALUES (@id, @nama_obat, @stok, @harga_jual,@satuanharga, @tanggal_kadaluarsa,@masuk, @kategori, @satuan, @deskripsi);";
 
                     koneksi.Open();
                     perintah = new MySqlCommand(query, koneksi);
@@ -69,7 +70,9 @@ namespace UI_Project
                     perintah.Parameters.AddWithValue("@nama_obat", textBox1.Text);
                     perintah.Parameters.AddWithValue("@stok", textBox2.Text);
                     perintah.Parameters.AddWithValue("@harga_jual", textBox4.Text);
+                    perintah.Parameters.AddWithValue("@satuanharga", textBox9.Text);
                     perintah.Parameters.AddWithValue("@tanggal_kadaluarsa", formattedDate);
+                    perintah.Parameters.AddWithValue("@masuk", formattedDate2);
                     perintah.Parameters.AddWithValue("@kategori", textBox7.Text);
                     perintah.Parameters.AddWithValue("@satuan", textBox6.Text);
                     perintah.Parameters.AddWithValue("@deskripsi", textBox5.Text);
@@ -266,7 +269,7 @@ namespace UI_Project
             try
             {
                 koneksi.Open();
-                query = string.Format("SELECT id_obat, nama_obat, stok, harga_jual, tanggal_kadaluarsa, kategori, satuan, deskripsi FROM obat ORDER BY id_obat ASC");
+                query = string.Format("SELECT id_obat,tgl_masuk, nama_obat, kategori,harga_beli_satuan, harga_jual, stok, satuan, tanggal_kadaluarsa, deskripsi FROM obat ORDER BY id_obat ASC");
                 perintah = new MySqlCommand(query, koneksi);
                 adapter = new MySqlDataAdapter(perintah);
 
@@ -276,24 +279,29 @@ namespace UI_Project
                 adapter.Fill(ds);
                 koneksi.Close();
                 dataGridView1.DataSource = ds.Tables[0];
-                dataGridView1.Columns[0].Width = 100;
+                dataGridView1.Columns[0].Width = 50;
                 dataGridView1.Columns[0].HeaderText = "Id";
-                dataGridView1.Columns[1].Width = 150;
-                dataGridView1.Columns[1].HeaderText = "Drug Name";
+                dataGridView1.Columns[1].Width = 120;
+                dataGridView1.Columns[1].HeaderText = "Date of Entry";
                 dataGridView1.Columns[2].Width = 120;
-                dataGridView1.Columns[2].HeaderText = "Stok";
+                dataGridView1.Columns[2].HeaderText = "Drug Name";
                 dataGridView1.Columns[3].Width = 120;
-                dataGridView1.Columns[3].HeaderText = "Price";
+                dataGridView1.Columns[3].HeaderText = "Category";
                 dataGridView1.Columns[4].Width = 120;
-                dataGridView1.Columns[4].HeaderText = "Expired Date";
-                dataGridView1.Columns[5].Width = 120;
-                dataGridView1.Columns[5].HeaderText = "Category";
-                dataGridView1.Columns[6].Width = 120;
-                dataGridView1.Columns[6].HeaderText = "Unit";
-                dataGridView1.Columns[7].Width = 197;
-                dataGridView1.Columns[7].HeaderText = "Description";
+                dataGridView1.Columns[4].HeaderText = "Unit Purchase Price";
+                dataGridView1.Columns[5].Width = 100;
+                dataGridView1.Columns[5].HeaderText = "Price";
+                dataGridView1.Columns[6].Width = 80;
+                dataGridView1.Columns[6].HeaderText = "Stok";
+                dataGridView1.Columns[7].Width = 80;
+                dataGridView1.Columns[7].HeaderText = "Unit";
+                dataGridView1.Columns[8].Width = 120;
+                dataGridView1.Columns[8].HeaderText = "Expired Date";
+                dataGridView1.Columns[9].Width = 127;
+                dataGridView1.Columns[9].HeaderText = "Description";
 
                 dateTimePicker1.Value = DateTime.Now;
+                dateTimePicker2.Value = DateTime.Now;
                 textBox8.Clear();
                 textBox1.Clear();
                 textBox2.Clear();
@@ -301,6 +309,7 @@ namespace UI_Project
                 textBox7.Clear();
                 textBox6.Clear();
                 textBox5.Clear();
+                textBox9.Clear();
                 button5.Enabled = true;
 
 
@@ -350,6 +359,7 @@ namespace UI_Project
                         {
                             textBox8.Text = kolom["id_obat"].ToString();
                             textBox2.Text = kolom["stok"].ToString();
+                            textBox9.Text = kolom["harga_beli_satuan"].ToString();
                             textBox4.Text = kolom["harga_jual"].ToString();
                             textBox7.Text = kolom["kategori"].ToString();
                             textBox6.Text = kolom["satuan"].ToString();
@@ -408,11 +418,11 @@ namespace UI_Project
         {
             try
             {
-                if (textBox1.Text != "" && textBox2.Text != "" && textBox4.Text != "" && textBox7.Text != "" && textBox6.Text != "" && textBox5.Text != "" && textBox8.Text !="")
+                if (textBox1.Text != "" && textBox2.Text != "" && textBox9.Text != "" && textBox4.Text != "" && textBox7.Text != "" && textBox6.Text != "" && textBox5.Text != "" && textBox8.Text !="")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
 
-                    query = "UPDATE obat SET nama_obat = @nama_obat, stok = @stok, harga_jual = @harga_jual, tanggal_kadaluarsa = @tanggal_kadaluarsa, kategori = @kategori, satuan = @satuan, deskripsi = @deskripsi WHERE id_obat = @id";
+                    query = "UPDATE obat SET nama_obat = @nama_obat, stok = @stok,harga_beli_satuan = @harga_satuan, harga_jual = @harga_jual, tanggal_kadaluarsa = @tanggal_kadaluarsa, kategori = @kategori, satuan = @satuan, deskripsi = @deskripsi WHERE id_obat = @id";
 
                     koneksi.Open();
                     perintah = new MySqlCommand(query, koneksi);
@@ -421,6 +431,7 @@ namespace UI_Project
                     
                     perintah.Parameters.AddWithValue("@nama_obat", textBox1.Text);
                     perintah.Parameters.AddWithValue("@stok", textBox2.Text);
+                    perintah.Parameters.AddWithValue("@harga_satuan", textBox9.Text);
                     perintah.Parameters.AddWithValue("@harga_jual", textBox4.Text);
                     perintah.Parameters.AddWithValue("@tanggal_kadaluarsa", formattedDate);
                     perintah.Parameters.AddWithValue("@kategori", textBox7.Text);
@@ -469,6 +480,18 @@ namespace UI_Project
         private void label6_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void textBox9_TextChanged(object sender, EventArgs e)
+        {
+            if (decimal.TryParse(textBox9.Text, out decimal unitPurchasePrice))
+            {
+                // Kalkulasi finalPrice dengan menambahkan 2000
+                int finalPrice = (int)(unitPurchasePrice + 2000); // Casting ke integer
+
+                // Tampilkan hasil di TextBox
+                textBox4.Text = finalPrice.ToString(); // Tampilkan sebagai string
+            }
         }
 
         private void label2_Click(object sender, EventArgs e)

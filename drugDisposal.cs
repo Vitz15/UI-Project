@@ -214,13 +214,13 @@ namespace UI_Project
                 adapter.Fill(ds);
                 dataGridView1.DataSource = ds.Tables[0];
 
-                dataGridView1.Columns[0].Width = 200;
+                dataGridView1.Columns[0].Width = 225;
                 dataGridView1.Columns[0].HeaderText = "Drug Name";
-                dataGridView1.Columns[1].Width = 200;
+                dataGridView1.Columns[1].Width = 225;
                 dataGridView1.Columns[1].HeaderText = "Expired Date";
-                dataGridView1.Columns[2].Width = 200;
+                dataGridView1.Columns[2].Width = 225;
                 dataGridView1.Columns[2].HeaderText = "Amount";
-                dataGridView1.Columns[3].Width = 200;
+                dataGridView1.Columns[3].Width = 227;
                 dataGridView1.Columns[3].HeaderText = "Description";
 
                 string queryObat = "SELECT DISTINCT nama_obat FROM obat";

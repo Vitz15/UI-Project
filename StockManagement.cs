@@ -71,22 +71,25 @@ namespace UI_Project
                 if (textBox6.Text != "" && textBox2.Text != "" && textBox4.Text != "")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
+                    string formattedDate2 = dateTimePicker2.Value.ToString("yyyy-MM-dd");
 
                     // Gunakan parameterized query
-                    query = "INSERT INTO stok_masuk (id_stok_masuk, nama_obat, jumlah, harga_beli_satuan, total_harga_beli, tgl_masuk, supplier, nomor_bench) " +
-                            "VALUES (@id_stok, @nama_obat, @jumlah, @harga_satuan, @total_harga, @tgl, @supplier, @no_bench);";
+                    query = "INSERT INTO stok_masuk (id_stok_masuk,tgl_masuk, nama_obat, jumlah, harga_beli_satuan, total_harga_beli, tgl_kadaluarsa, supplier,harga_jual, nomor_bench) " +
+                            "VALUES (@id_stok,@masuk, @nama_obat, @jumlah, @harga_satuan, @total_harga, @tgl, @supplier,@jual, @no_bench);";
 
                     koneksi.Open();
                     perintah = new MySqlCommand(query, koneksi);
 
                     // Menambahkan parameter ke query
                     perintah.Parameters.AddWithValue("@id_stok", textBox1.Text);
+                    perintah.Parameters.AddWithValue("@masuk", formattedDate2);
                     perintah.Parameters.AddWithValue("@nama_obat", comboBox1.Text);
                     perintah.Parameters.AddWithValue("@jumlah", textBox4.Text);
                     perintah.Parameters.AddWithValue("@harga_satuan", textBox3.Text);
                     perintah.Parameters.AddWithValue("@total_harga", textBox5.Text);
                     perintah.Parameters.AddWithValue("@tgl", formattedDate);
                     perintah.Parameters.AddWithValue("@supplier", textBox6.Text);
+                    perintah.Parameters.AddWithValue("@jual", textBox7.Text);
                     perintah.Parameters.AddWithValue("@no_bench", textBox2.Text);
 
                     adapter = new MySqlDataAdapter(perintah);
@@ -167,11 +170,12 @@ namespace UI_Project
         {
             try
             {
-                if (textBox1.Text != "" && comboBox1.Text != "" && textBox2.Text != "" && textBox4.Text != "" && textBox3.Text != "" && textBox5.Text != "" && textBox6.Text != "")
+                if (textBox1.Text != "" && textBox7.Text != "" && comboBox1.Text != "" && textBox2.Text != "" && textBox4.Text != "" && textBox3.Text != "" && textBox5.Text != "" && textBox6.Text != "")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
+                    string formattedDate2 = dateTimePicker2.Value.ToString("yyyy-MM-dd");
 
-                    query = "UPDATE stok_masuk SET nama_obat = @nama_obat, nomor_bench = @no_bench, jumlah = @jumlah, harga_beli_satuan = @harga_satuan, total_harga_beli = @total_harga, tgl_masuk = @tgl, supplier = @supplier WHERE id_stok_masuk = @id_stok";
+                    query = "UPDATE stok_masuk SET nama_obat = @nama_obat, tgl_masuk = @masuk,harga_jual = @jual, nomor_bench = @no_bench, jumlah = @jumlah, harga_beli_satuan = @harga_satuan, total_harga_beli = @total_harga, tgl_kadaluarsa = @tgl, supplier = @supplier WHERE id_stok_masuk = @id_stok";
 
                     koneksi.Open();
                     perintah = new MySqlCommand(query, koneksi);
@@ -180,6 +184,8 @@ namespace UI_Project
 
                     perintah.Parameters.AddWithValue("@id_stok", textBox1.Text);
                     perintah.Parameters.AddWithValue("@nama_obat", comboBox1.Text);
+                    perintah.Parameters.AddWithValue("@masuk", formattedDate2);
+                    perintah.Parameters.AddWithValue("@jual", textBox7.Text);
                     perintah.Parameters.AddWithValue("@jumlah", textBox4.Text);
                     perintah.Parameters.AddWithValue("@harga_satuan", textBox3.Text);
                     perintah.Parameters.AddWithValue("@total_harga", textBox5.Text);
@@ -237,6 +243,7 @@ namespace UI_Project
                             textBox5.Text = kolom["total_harga_beli"].ToString();
                             textBox6.Text = kolom["supplier"].ToString();
                             textBox2.Text = kolom["nomor_bench"].ToString();
+                            textBox7.Text = kolom["harga_jual"].ToString();
 
                         }
                         textBox8.Enabled = true;
@@ -272,7 +279,7 @@ namespace UI_Project
                 if (comboBox1.SelectedItem != null)
                 {
                     // Query untuk mendapatkan stok dan harga jual berdasarkan nama obat yang dipilih
-                    string query = "SELECT stok, harga_jual,tanggal_kadaluarsa FROM obat WHERE nama_obat = @nama_obat";
+                    string query = "SELECT harga_beli_satuan, harga_jual FROM obat WHERE nama_obat = @nama_obat";
                     MySqlCommand command = new MySqlCommand(query, koneksi);
                     command.Parameters.AddWithValue("@nama_obat", comboBox1.SelectedItem.ToString());
 
@@ -283,20 +290,17 @@ namespace UI_Project
                     MySqlDataReader reader = command.ExecuteReader();
                     if (reader.Read())
                     {
-                        // Tampilkan stok di TextBox (misalnya textBox4)
-                        textBox4.Text = reader["stok"].ToString();
+                        textBox3.Text = reader["harga_beli_satuan"].ToString();
+                        textBox7.Text = reader["harga_jual"].ToString();
 
-                        // Tampilkan harga jual di TextBox (misalnya textBoxHargaJual)
-                        textBox3.Text = reader["harga_jual"].ToString();
-
-                        dateTimePicker1.Value = Convert.ToDateTime(reader["tanggal_kadaluarsa"]);
                     }
                     else
                     {
                         // Jika tidak ada hasil, setel TextBox ke 0 atau kosong
-                        textBox4.Text = "0";
                         textBox3.Text = "0";
+                        textBox7.Text = "0";
                         dateTimePicker1.Value = DateTime.Today;
+                        dateTimePicker2.Value = DateTime.Today;
                     }
 
                     // Tutup reader setelah selesai
@@ -357,7 +361,7 @@ namespace UI_Project
                     koneksi.Open();
 
                     // Mengambil obat yang sudah kadaluarsa dari tabel stok
-                    string selectQuery = "SELECT nama_obat, jumlah FROM stok_masuk WHERE tgl_masuk < @currentDate";
+                    string selectQuery = "SELECT nama_obat, jumlah FROM stok_masuk WHERE tgl_kadaluarsa < @currentDate";
                     using (MySqlCommand perintah = new MySqlCommand(selectQuery, koneksi))
                     {
                         perintah.Parameters.AddWithValue("@currentDate", DateTime.Now);
@@ -369,7 +373,7 @@ namespace UI_Project
                             // Menghapus obat kadaluarsa dari tabel stok
                             if (expiredStock.Rows.Count > 0)
                             {
-                                string deleteStokQuery = "DELETE FROM stok_masuk WHERE tgl_masuk < @currentDate";
+                                string deleteStokQuery = "DELETE FROM stok_masuk WHERE tgl_kadaluarsa < @currentDate";
                                 using (MySqlCommand deleteStokCommand = new MySqlCommand(deleteStokQuery, koneksi))
                                 {
                                     deleteStokCommand.Parameters.AddWithValue("@currentDate", DateTime.Now);
@@ -397,13 +401,23 @@ namespace UI_Project
 
         }
 
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox8_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
         private void StockManagement_Load(object sender, EventArgs e)
         {
             MoveExpiredMedicines();
             try
             {
                 koneksi.Open();
-                query = string.Format("SELECT id_stok_masuk, nama_obat, nomor_bench, jumlah, harga_beli_satuan, total_harga_beli, tgl_masuk, supplier FROM stok_masuk ORDER BY id_stok_masuk ASC");
+                query = string.Format("SELECT id_stok_masuk,tgl_masuk, nama_obat, nomor_bench, jumlah, harga_beli_satuan, harga_jual, total_harga_beli, tgl_kadaluarsa, supplier  FROM stok_masuk ORDER BY id_stok_masuk ASC");
                 perintah = new MySqlCommand(query, koneksi);
                 adapter = new MySqlDataAdapter(perintah);
 
@@ -413,22 +427,26 @@ namespace UI_Project
                 adapter.Fill(ds);
                 koneksi.Close();
                 dataGridView1.DataSource = ds.Tables[0];
-                dataGridView1.Columns[0].Width = 100;
+                dataGridView1.Columns[0].Width = 60;
                 dataGridView1.Columns[0].HeaderText = "Incoming Stock Id";
-                dataGridView1.Columns[1].Width = 150;
-                dataGridView1.Columns[1].HeaderText = "Drug Name";
+                dataGridView1.Columns[1].Width = 100;
+                dataGridView1.Columns[1].HeaderText = "Date of Entry";
                 dataGridView1.Columns[2].Width = 120;
-                dataGridView1.Columns[2].HeaderText = "Bench Number";
-                dataGridView1.Columns[3].Width = 120;
-                dataGridView1.Columns[3].HeaderText = "Amount";
-                dataGridView1.Columns[4].Width = 120;
-                dataGridView1.Columns[4].HeaderText = "Unit Purchase Price";
+                dataGridView1.Columns[2].HeaderText = "Drug Name";
+                dataGridView1.Columns[3].Width = 80;
+                dataGridView1.Columns[3].HeaderText = "Bench Number";
+                dataGridView1.Columns[4].Width = 80;
+                dataGridView1.Columns[4].HeaderText = "Amount";
                 dataGridView1.Columns[5].Width = 120;
-                dataGridView1.Columns[5].HeaderText = "Total Price";
+                dataGridView1.Columns[5].HeaderText = "Unit Purchase Price";
                 dataGridView1.Columns[6].Width = 120;
-                dataGridView1.Columns[6].HeaderText = "Date";
-                dataGridView1.Columns[7].Width = 197;
-                dataGridView1.Columns[7].HeaderText = "Supplier";
+                dataGridView1.Columns[6].HeaderText = "Price";
+                dataGridView1.Columns[7].Width = 120;
+                dataGridView1.Columns[7].HeaderText = "Total Price";
+                dataGridView1.Columns[8].Width = 100;
+                dataGridView1.Columns[8].HeaderText = "Expired Date";
+                dataGridView1.Columns[9].Width = 130;
+                dataGridView1.Columns[9].HeaderText = "Supplier";
 
                 comboBox1.Items.Clear();
 
@@ -448,7 +466,9 @@ namespace UI_Project
                 koneksi.Close();
 
                 dateTimePicker1.Value = DateTime.Now;
+                dateTimePicker2.Value = DateTime.Now;
                 textBox3.Clear();
+                textBox7.Clear();
                 textBox1.Clear();
                 textBox2.Clear();
                 textBox4.Clear();

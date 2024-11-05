@@ -42,12 +42,11 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.comboBoxMonth = new System.Windows.Forms.ComboBox();
             this.comboBoxYear = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -95,7 +94,7 @@
             this.label7.BackColor = System.Drawing.Color.Transparent;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.ForeColor = System.Drawing.Color.White;
-            this.label7.Location = new System.Drawing.Point(1307, 282);
+            this.label7.Location = new System.Drawing.Point(737, 282);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(454, 51);
             this.label7.TabIndex = 68;
@@ -107,7 +106,7 @@
             this.label8.BackColor = System.Drawing.Color.Transparent;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.ForeColor = System.Drawing.Color.White;
-            this.label8.Location = new System.Drawing.Point(540, 282);
+            this.label8.Location = new System.Drawing.Point(598, 282);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(421, 51);
             this.label8.TabIndex = 69;
@@ -214,40 +213,6 @@
             this.dataGridView1.TabIndex = 100;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(693, 256);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(456, 22);
-            this.textBox3.TabIndex = 102;
-            // 
-            // button5
-            // 
-            this.button5.BackColor = System.Drawing.Color.Black;
-            this.button5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button5.ForeColor = System.Drawing.Color.White;
-            this.button5.Location = new System.Drawing.Point(551, 242);
-            this.button5.Margin = new System.Windows.Forms.Padding(0);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(117, 44);
-            this.button5.TabIndex = 101;
-            this.button5.Text = "Search";
-            this.button5.UseVisualStyleBackColor = false;
-            // 
-            // button4
-            // 
-            this.button4.BackColor = System.Drawing.Color.DodgerBlue;
-            this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button4.ForeColor = System.Drawing.Color.White;
-            this.button4.Location = new System.Drawing.Point(1665, 238);
-            this.button4.Margin = new System.Windows.Forms.Padding(0);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(275, 44);
-            this.button4.TabIndex = 103;
-            this.button4.Text = "Calculate";
-            this.button4.UseVisualStyleBackColor = false;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
             // label10
             // 
             this.label10.AutoSize = true;
@@ -264,7 +229,7 @@
             // comboBoxMonth
             // 
             this.comboBoxMonth.FormattingEnabled = true;
-            this.comboBoxMonth.Location = new System.Drawing.Point(1177, 256);
+            this.comboBoxMonth.Location = new System.Drawing.Point(701, 256);
             this.comboBoxMonth.Name = "comboBoxMonth";
             this.comboBoxMonth.Size = new System.Drawing.Size(159, 24);
             this.comboBoxMonth.TabIndex = 105;
@@ -273,11 +238,35 @@
             // comboBoxYear
             // 
             this.comboBoxYear.FormattingEnabled = true;
-            this.comboBoxYear.Location = new System.Drawing.Point(1353, 256);
+            this.comboBoxYear.Location = new System.Drawing.Point(948, 256);
             this.comboBoxYear.Name = "comboBoxYear";
             this.comboBoxYear.Size = new System.Drawing.Size(159, 24);
             this.comboBoxYear.TabIndex = 106;
             this.comboBoxYear.SelectedIndexChanged += new System.EventHandler(this.comboBoxYear_SelectedIndexChanged);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.BackColor = System.Drawing.Color.Transparent;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.ForeColor = System.Drawing.Color.Black;
+            this.label9.Location = new System.Drawing.Point(547, 256);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(131, 20);
+            this.label9.TabIndex = 107;
+            this.label9.Text = "Select Month :";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.BackColor = System.Drawing.Color.Transparent;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.ForeColor = System.Drawing.Color.Black;
+            this.label11.Location = new System.Drawing.Point(875, 256);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(59, 20);
+            this.label11.TabIndex = 108;
+            this.label11.Text = "Year :";
             // 
             // FinancialS
             // 
@@ -286,12 +275,11 @@
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1902, 1033);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.comboBoxYear);
             this.Controls.Add(this.comboBoxMonth);
             this.Controls.Add(this.label10);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.button5);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label40);
@@ -330,11 +318,10 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ComboBox comboBoxMonth;
         private System.Windows.Forms.ComboBox comboBoxYear;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label11;
     }
 }
