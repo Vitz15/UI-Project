@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using MySql.Data;
@@ -53,42 +54,111 @@ namespace UI_Project
         {
             try
             {
-                if (textBox1.Text != "" && textBox2.Text != "" && textBox4.Text != "")
+                if (textBox2.Text != "" && textBox4.Text != "")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
                     string formattedDate2 = dateTimePicker2.Value.ToString("yyyy-MM-dd");
 
-                    // Gunakan parameterized query
-                    query = "INSERT INTO obat (id_obat, nama_obat, stok, harga_jual,harga_beli_satuan, tanggal_kadaluarsa,tgl_masuk, kategori, satuan, deskripsi) " +
-                            "VALUES (@id, @nama_obat, @stok, @harga_jual,@satuanharga, @tanggal_kadaluarsa,@masuk, @kategori, @satuan, @deskripsi);";
-
-                    koneksi.Open();
-                    perintah = new MySqlCommand(query, koneksi);
-
-                    // Menambahkan parameter ke query
-                    perintah.Parameters.AddWithValue("@id", textBox8.Text);
-                    perintah.Parameters.AddWithValue("@nama_obat", textBox1.Text);
-                    perintah.Parameters.AddWithValue("@stok", textBox2.Text);
-                    perintah.Parameters.AddWithValue("@harga_jual", textBox4.Text);
-                    perintah.Parameters.AddWithValue("@satuanharga", textBox9.Text);
-                    perintah.Parameters.AddWithValue("@tanggal_kadaluarsa", formattedDate);
-                    perintah.Parameters.AddWithValue("@masuk", formattedDate2);
-                    perintah.Parameters.AddWithValue("@kategori", textBox7.Text);
-                    perintah.Parameters.AddWithValue("@satuan", textBox6.Text);
-                    perintah.Parameters.AddWithValue("@deskripsi", textBox5.Text);
-
-                    adapter = new MySqlDataAdapter(perintah);
-                    int res = perintah.ExecuteNonQuery();
-                    koneksi.Close();
-
-                    if (res == 1)
+                    // Gunakan "using" statement untuk memastikan koneksi ditutup otomatis
+                    using (MySqlConnection koneksi = new MySqlConnection(alamat))
                     {
-                        MessageBox.Show("Insert Data Sukses ...");
-                        Drugandstock_Load(null, null);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Gagal Insert Data . . . ");
+                        koneksi.Open(); // Membuka koneksi hanya sekali di dalam blok 'using'
+
+                        // Query untuk menambahkan obat
+                        string query = "INSERT INTO obat (id_obat, nama_obat, stok, harga_jual, tanggal_kadaluarsa, tgl_masuk, kategori, satuan, deskripsi) " +
+                                       "VALUES (@id, @nama_obat, @stok, @harga_jual, @tanggal_kadaluarsa, @masuk, @kategori, @satuan, @deskripsi);";
+
+                        using (MySqlCommand perintah = new MySqlCommand(query, koneksi))
+                        {
+                            perintah.Parameters.AddWithValue("@id", textBox8.Text);
+                            perintah.Parameters.AddWithValue("@nama_obat", comboBox1.Text);
+                            perintah.Parameters.AddWithValue("@stok", textBox2.Text);
+                            perintah.Parameters.AddWithValue("@harga_jual", textBox4.Text);
+                            perintah.Parameters.AddWithValue("@tanggal_kadaluarsa", formattedDate);
+                            perintah.Parameters.AddWithValue("@masuk", formattedDate2);
+                            perintah.Parameters.AddWithValue("@kategori", textBox7.Text);
+                            perintah.Parameters.AddWithValue("@satuan", textBox6.Text);
+                            perintah.Parameters.AddWithValue("@deskripsi", textBox5.Text);
+
+                            // Menjalankan perintah insert untuk tabel obat hanya sekali
+                            int res = perintah.ExecuteNonQuery();
+
+                            if (res == 1)
+                            {
+                                int jumlahDikurangi = Convert.ToInt32(textBox2.Text); // Total jumlah stok yang ingin dikurangi
+                                string drugName = comboBox1.Text;
+
+                                // Mengambil stok berdasarkan batch
+                                string selectBatchQuery = "SELECT nomor_bench, jumlah FROM stok_masuk WHERE nama_obat = @nama AND jumlah > 0 ORDER BY nomor_bench ASC;";
+                                MySqlCommand selectBatchCommand = new MySqlCommand(selectBatchQuery, koneksi);
+                                selectBatchCommand.Parameters.AddWithValue("@nama", drugName);
+
+                                // Membaca semua batch terlebih dahulu
+                                List<Tuple<int, int>> batches = new List<Tuple<int, int>>();
+                                using (MySqlDataReader reader = selectBatchCommand.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        int nomorBench = reader.GetInt32("nomor_bench");
+                                        int jumlahBatch = reader.GetInt32("jumlah");
+                                        batches.Add(Tuple.Create(nomorBench, jumlahBatch));
+                                    }
+                                }
+
+                                // Setelah membaca, sekarang lakukan pengurangan stok per batch
+                                foreach (var batch in batches)
+                                {
+                                    if (jumlahDikurangi <= 0) break;
+
+                                    int nomorBench = batch.Item1;
+                                    int jumlahBatch = batch.Item2;
+
+                                    int jumlahPengurangan = Math.Min(jumlahDikurangi, jumlahBatch); // Kurangi sesuai batch
+
+                                    // Update stok di batch ini
+                                    string updateBatchQuery = "UPDATE stok_masuk SET jumlah = jumlah - @jumlahPengurangan WHERE nomor_bench = @nomorBench AND nama_obat = @namaObat;";
+                                    MySqlCommand updateBatchCommand = new MySqlCommand(updateBatchQuery, koneksi);
+                                    updateBatchCommand.Parameters.AddWithValue("@jumlahPengurangan", jumlahPengurangan);
+                                    updateBatchCommand.Parameters.AddWithValue("@nomorBench", nomorBench);
+                                    updateBatchCommand.Parameters.AddWithValue("@namaObat", drugName);
+
+                                    updateBatchCommand.ExecuteNonQuery(); // Kurangi stok batch ini
+                                    jumlahDikurangi -= jumlahPengurangan; // Kurangi jumlah sisa yang perlu dikurangi
+                                }
+
+                                // Jika stok batch berhasil dikurangi, perbarui stok pada tabel obat hanya sekali
+                                if (jumlahDikurangi == 0)
+                                {
+                                    // Update stok pada tabel obat setelah pengurangan
+                                    string updateObatQuery = "UPDATE obat SET stok = stok  WHERE nama_obat = @nama;";
+                                    MySqlCommand updateObatCommand = new MySqlCommand(updateObatQuery, koneksi);
+            
+                                    updateObatCommand.Parameters.AddWithValue("@nama", drugName);
+
+                                    int obatUpdateRes = updateObatCommand.ExecuteNonQuery();
+
+                                    if (obatUpdateRes > 0)
+                                    {
+                                        MessageBox.Show("Insert Data Sukses dan Stok Berhasil di update.");
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Insert Data Sukses tetapi gagal memperbarui stok di tabel obat.");
+                                    }
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Stok tidak cukup pada batch yang tersedia.");
+                                }
+
+                                // Refresh DataGridView
+                                Drugandstock_Load(null, null); // Update tampilan data stok
+                            }
+                            else
+                            {
+                                MessageBox.Show("Gagal Insert Data . . . ");
+                            }
+                        }
                     }
                 }
                 else
@@ -100,6 +170,9 @@ namespace UI_Project
             {
                 MessageBox.Show(ex.ToString());
             }
+
+
+
 
         }
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
@@ -269,17 +342,14 @@ namespace UI_Project
             try
             {
                 koneksi.Open();
-                query = string.Format("SELECT id_obat,tgl_masuk, nama_obat, kategori,harga_beli_satuan, harga_jual, stok, satuan, tanggal_kadaluarsa, deskripsi FROM obat ORDER BY id_obat ASC");
+                query = string.Format("SELECT id_obat,tgl_masuk, nama_obat, kategori, harga_jual, stok, satuan, tanggal_kadaluarsa, deskripsi FROM obat ORDER BY id_obat ASC");
                 perintah = new MySqlCommand(query, koneksi);
                 adapter = new MySqlDataAdapter(perintah);
-
                 MySqlCommandBuilder commandBuilder = new MySqlCommandBuilder(adapter);
-
                 ds.Clear();
                 adapter.Fill(ds);
-                koneksi.Close();
                 dataGridView1.DataSource = ds.Tables[0];
-                dataGridView1.Columns[0].Width = 50;
+                dataGridView1.Columns[0].Width = 70;
                 dataGridView1.Columns[0].HeaderText = "Id";
                 dataGridView1.Columns[1].Width = 120;
                 dataGridView1.Columns[1].HeaderText = "Date of Entry";
@@ -288,32 +358,39 @@ namespace UI_Project
                 dataGridView1.Columns[3].Width = 120;
                 dataGridView1.Columns[3].HeaderText = "Category";
                 dataGridView1.Columns[4].Width = 120;
-                dataGridView1.Columns[4].HeaderText = "Unit Purchase Price";
-                dataGridView1.Columns[5].Width = 100;
-                dataGridView1.Columns[5].HeaderText = "Price";
-                dataGridView1.Columns[6].Width = 80;
-                dataGridView1.Columns[6].HeaderText = "Stok";
-                dataGridView1.Columns[7].Width = 80;
-                dataGridView1.Columns[7].HeaderText = "Unit";
-                dataGridView1.Columns[8].Width = 120;
-                dataGridView1.Columns[8].HeaderText = "Expired Date";
-                dataGridView1.Columns[9].Width = 127;
-                dataGridView1.Columns[9].HeaderText = "Description";
+                dataGridView1.Columns[4].HeaderText = "Price";
+                dataGridView1.Columns[5].Width = 120;
+                dataGridView1.Columns[5].HeaderText = "Stok";
+                dataGridView1.Columns[6].Width = 120;
+                dataGridView1.Columns[6].HeaderText = "Unit";
+                dataGridView1.Columns[7].Width = 120;
+                dataGridView1.Columns[7].HeaderText = "Expired Date";
+                dataGridView1.Columns[8].Width = 127;
+                dataGridView1.Columns[8].HeaderText = "Description";
+
+                comboBox1.Items.Clear();
+
+                string queryObat = "SELECT DISTINCT nama_obat FROM stok_masuk";
+                perintah = new MySqlCommand(queryObat, koneksi);
+                MySqlDataReader reader = perintah.ExecuteReader();
+
+                // Menambahkan nama obat ke ComboBox
+                while (reader.Read())
+                {
+                    comboBox1.Items.Add(reader["nama_obat"].ToString());
+                }
+                reader.Close();
 
                 dateTimePicker1.Value = DateTime.Now;
-                dateTimePicker2.Value = DateTime.Now;
-                textBox8.Clear();
-                textBox1.Clear();
-                textBox2.Clear();
-                textBox4.Clear();
-                textBox7.Clear();
-                textBox6.Clear();
-                textBox5.Clear();
-                textBox9.Clear();
-                button5.Enabled = true;
-
-
-              
+                    dateTimePicker2.Value = DateTime.Now;
+                    textBox8.Clear();
+                    textBox2.Clear();
+                    textBox4.Clear();
+                    textBox7.Clear();
+                    textBox6.Clear();
+                    textBox5.Clear();
+                    button5.Enabled = true;
+                koneksi.Close();
 
             }
             catch (Exception ex)
@@ -359,12 +436,12 @@ namespace UI_Project
                         {
                             textBox8.Text = kolom["id_obat"].ToString();
                             textBox2.Text = kolom["stok"].ToString();
-                            textBox9.Text = kolom["harga_beli_satuan"].ToString();
+                        
                             textBox4.Text = kolom["harga_jual"].ToString();
                             textBox7.Text = kolom["kategori"].ToString();
                             textBox6.Text = kolom["satuan"].ToString();
                             textBox5.Text = kolom["deskripsi"].ToString();
-                            textBox1.Text = kolom["nama_obat"].ToString();
+                            comboBox1.Text = kolom["nama_obat"].ToString();
 
                         }
                         textBox3.Enabled = true;
@@ -390,6 +467,7 @@ namespace UI_Project
             {
                 MessageBox.Show(ex.ToString());
             }
+
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -418,20 +496,19 @@ namespace UI_Project
         {
             try
             {
-                if (textBox1.Text != "" && textBox2.Text != "" && textBox9.Text != "" && textBox4.Text != "" && textBox7.Text != "" && textBox6.Text != "" && textBox5.Text != "" && textBox8.Text !="")
+                if (comboBox1.Text != "" && textBox2.Text != ""  && textBox4.Text != "" && textBox7.Text != "" && textBox6.Text != "" && textBox5.Text != "" && textBox8.Text !="")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
 
-                    query = "UPDATE obat SET nama_obat = @nama_obat, stok = @stok,harga_beli_satuan = @harga_satuan, harga_jual = @harga_jual, tanggal_kadaluarsa = @tanggal_kadaluarsa, kategori = @kategori, satuan = @satuan, deskripsi = @deskripsi WHERE id_obat = @id";
+                    query = "UPDATE obat SET nama_obat = @nama_obat, stok = @stok, harga_jual = @harga_jual, tanggal_kadaluarsa = @tanggal_kadaluarsa, kategori = @kategori, satuan = @satuan, deskripsi = @deskripsi WHERE id_obat = @id";
 
                     koneksi.Open();
                     perintah = new MySqlCommand(query, koneksi);
 
                     // Menambahkan parameter ke query untuk mencegah SQL Injection
                     
-                    perintah.Parameters.AddWithValue("@nama_obat", textBox1.Text);
+                    perintah.Parameters.AddWithValue("@nama_obat", comboBox1.Text);
                     perintah.Parameters.AddWithValue("@stok", textBox2.Text);
-                    perintah.Parameters.AddWithValue("@harga_satuan", textBox9.Text);
                     perintah.Parameters.AddWithValue("@harga_jual", textBox4.Text);
                     perintah.Parameters.AddWithValue("@tanggal_kadaluarsa", formattedDate);
                     perintah.Parameters.AddWithValue("@kategori", textBox7.Text);
@@ -482,15 +559,52 @@ namespace UI_Project
 
         }
 
-        private void textBox9_TextChanged(object sender, EventArgs e)
-        {
-            if (decimal.TryParse(textBox9.Text, out decimal unitPurchasePrice))
-            {
-                // Kalkulasi finalPrice dengan menambahkan 2000
-                int finalPrice = (int)(unitPurchasePrice + 2000); // Casting ke integer
 
-                // Tampilkan hasil di TextBox
-                textBox4.Text = finalPrice.ToString(); // Tampilkan sebagai string
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                // Pastikan ComboBox memiliki nilai terpilih
+                if (comboBox1.SelectedItem != null)
+                {
+                    // Query untuk mendapatkan stok dan harga jual berdasarkan nama obat yang dipilih
+                    string query = "SELECT harga_jual FROM stok_masuk WHERE nama_obat = @nama_obat";
+                    MySqlCommand command = new MySqlCommand(query, koneksi);
+                    command.Parameters.AddWithValue("@nama_obat", comboBox1.SelectedItem.ToString());
+
+                    // Buka koneksi
+                    koneksi.Open();
+
+                    // Eksekusi query dan ambil stok dan harga jual
+                    MySqlDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                     
+                        textBox4.Text = reader["harga_jual"].ToString();
+
+                    }
+                    else
+                    {
+
+                        textBox4.Text = "0";
+                        dateTimePicker1.Value = DateTime.Today;
+                        dateTimePicker2.Value = DateTime.Today;
+                    }
+
+                    // Tutup reader setelah selesai
+                    reader.Close();
+
+                    // Tutup koneksi setelah selesai
+                    koneksi.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Terjadi kesalahan: " + ex.Message);
+                if (koneksi.State == ConnectionState.Open)
+                {
+                    koneksi.Close();
+                }
             }
         }
 
