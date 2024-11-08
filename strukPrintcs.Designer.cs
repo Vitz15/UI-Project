@@ -47,6 +47,7 @@
             this.crystalReportViewer1.ReportSource = this.strukTransaction2;
             this.crystalReportViewer1.Size = new System.Drawing.Size(1902, 1033);
             this.crystalReportViewer1.TabIndex = 0;
+            this.crystalReportViewer1.Load += new System.EventHandler(this.crystalReportViewer1_Load);
             // 
             // label1
             // 

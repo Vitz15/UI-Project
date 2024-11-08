@@ -48,15 +48,42 @@ namespace UI_Project
                 if (textBox1.Text != "")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
+                    koneksi.Open();
 
-                    // Query untuk menambahkan transaksi
+                    int jumlahDikurangi = Convert.ToInt32(textBox1.Text); // Total jumlah yang dibeli
+                    string drugName = comboBox1.Text;
+
+                    // Mengambil stok dari semua batch dengan nama obat yang sesuai
+                    string selectBatchQuery = "SELECT id_obat, stok FROM obat WHERE nama_obat = @namaObat AND stok > 0 ORDER BY id_obat ASC;";
+                    MySqlCommand selectBatchCommand = new MySqlCommand(selectBatchQuery, koneksi);
+                    selectBatchCommand.Parameters.AddWithValue("@namaObat", drugName);
+
+                    // Membaca semua batch yang tersedia untuk obat tersebut
+                    List<Tuple<string, int>> batches = new List<Tuple<string, int>>();
+                    using (MySqlDataReader reader = selectBatchCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string idObat = reader.GetString("id_obat");
+                            int stokBatch = reader.GetInt32("stok");
+                            batches.Add(Tuple.Create(idObat, stokBatch));
+                        }
+                    }
+
+                    // Cek apakah stok total cukup
+                    int totalStok = batches.Sum(batch => batch.Item2);
+                    if (totalStok < jumlahDikurangi)
+                    {
+                        MessageBox.Show("Obat tidak cukup di stok.");
+                        return; // Batalkan transaksi jika stok tidak cukup
+                    }
+
+                    // Jika stok cukup, lanjutkan dengan query INSERT untuk menambahkan transaksi
                     query = "INSERT INTO transaksi (id_transaksi, nama_pelanggan, nama_obat, tgl_transaksi, jumlah, harga_satuan, total_harga) " +
                             "VALUES (@id, @pelanggan, @obat, @tgl, @jmlh, @harga_satu, @total_harga);";
 
-                    koneksi.Open();
                     perintah = new MySqlCommand(query, koneksi);
 
-                    // Menambahkan parameter ke perintah
                     perintah.Parameters.AddWithValue("@id", textBox7.Text);
                     perintah.Parameters.AddWithValue("@tgl", formattedDate);
                     perintah.Parameters.AddWithValue("@pelanggan", comboBox2.Text);
@@ -65,45 +92,33 @@ namespace UI_Project
                     perintah.Parameters.AddWithValue("@harga_satu", textBox3.Text);
                     perintah.Parameters.AddWithValue("@total_harga", textBox4.Text);
 
-                    // Menjalankan perintah insert
                     int res = perintah.ExecuteNonQuery();
 
                     if (res == 1)
                     {
-                        int jumlahDikurangi = Convert.ToInt32(textBox1.Text); // Total jumlah yang dibeli
-                        string drugName = comboBox1.Text;
-
-                        // Cek apakah stok obat cukup di tabel obat
-                        string selectObatQuery = "SELECT stok FROM obat WHERE nama_obat = @namaObat;";
-                        MySqlCommand selectObatCommand = new MySqlCommand(selectObatQuery, koneksi);
-                        selectObatCommand.Parameters.AddWithValue("@namaObat", drugName);
-
-                        int stokObat = Convert.ToInt32(selectObatCommand.ExecuteScalar()); // Mengambil stok obat
-
-                        if (stokObat < jumlahDikurangi)
+                        // Lakukan pengurangan stok per batch
+                        foreach (var batch in batches)
                         {
-                            MessageBox.Show("Obat tidak cukup di stok.");
-                            return; // Jika stok tidak cukup, batalkan transaksi tanpa mengurangi stok
+                            if (jumlahDikurangi <= 0) break;
+
+                            string idObat = batch.Item1;
+                            int stokBatch = batch.Item2;
+
+                            int jumlahPengurangan = Math.Min(jumlahDikurangi, stokBatch); // Kurangi stok sesuai batch
+
+                            // Update stok untuk batch ini
+                            string updateBatchQuery = "UPDATE obat SET stok = stok - @jumlahPengurangan WHERE id_obat = @idObat;";
+                            MySqlCommand updateBatchCommand = new MySqlCommand(updateBatchQuery, koneksi);
+                            updateBatchCommand.Parameters.AddWithValue("@jumlahPengurangan", jumlahPengurangan);
+                            updateBatchCommand.Parameters.AddWithValue("@idObat", idObat);
+
+                            updateBatchCommand.ExecuteNonQuery(); // Kurangi stok pada batch ini
+                            jumlahDikurangi -= jumlahPengurangan; // Kurangi jumlah sisa yang perlu dikurangi
                         }
 
-                        // Jika stok cukup, lanjutkan mengurangi stok di tabel obat
-                        string updateObatQuery = "UPDATE obat SET stok = stok - @jumlah WHERE nama_obat = @nama;";
-                        MySqlCommand updateObatCommand = new MySqlCommand(updateObatQuery, koneksi);
-                        updateObatCommand.Parameters.AddWithValue("@jumlah", jumlahDikurangi);
-                        updateObatCommand.Parameters.AddWithValue("@nama", drugName);
+                        MessageBox.Show("Insert Data Sukses dan Stok Berhasil di update.");
 
-                        int obatUpdateRes = updateObatCommand.ExecuteNonQuery();
-
-                        if (obatUpdateRes > 0)
-                        {
-                            MessageBox.Show("Insert Data Sukses dan Stok Berhasil di update.");
-                        }
-                        else
-                        {
-                            MessageBox.Show("Insert Data Sukses tetapi gagal memperbarui stok di tabel obat");
-                        }
-
-                        // Refresh the DataGridView
+                        // Refresh DataGridView atau tampilan data
                         Salestransaction_Load(null, null);
                     }
                     else
@@ -122,8 +137,9 @@ namespace UI_Project
             }
             finally
             {
-                koneksi.Close(); // Ensure the connection is closed
+                koneksi.Close(); // Pastikan koneksi ditutup
             }
+
 
 
 
@@ -434,7 +450,6 @@ namespace UI_Project
                         textBox6.Enabled = true;
                         dataGridView1.DataSource = ds.Tables[0];
                         button5.Enabled = true;
-                        button4.Enabled = true;
                         button3.Enabled = true;
 
                     }
@@ -522,6 +537,7 @@ namespace UI_Project
 
         private void button6_Click(object sender, EventArgs e)
         {
+            
             strukPrintcs strukPrint = new strukPrintcs();
             strukPrint.Show();
         }

@@ -24,5 +24,10 @@ namespace UI_Project
             crystalReportViewer1.Refresh();
 
         }
+
+        private void crystalReportViewer1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

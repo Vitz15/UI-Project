@@ -261,23 +261,25 @@ namespace UI_Project
             GenerateNewId();
             try
             {
-                if (textBox2.Text != "" && textBox3.Text != "" )
+                // Pastikan textBox2 dan textBox3 diisi
+                if (textBox1.Text != "" && textBox2.Text != "" && textBox3.Text != "")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
 
-                    // Gunakan parameterized query
-                    query = "INSERT INTO pelanggan_umum (Id, tgl_transaksi, nama_pelanggan, no_telp)" +
-                            "VALUES (@id, @tgl, @pelanggan, @no);";
+                    // Gunakan parameterized query untuk mencegah SQL Injection
+                    query = "INSERT INTO pelanggan_umum (Id, nama_pelanggan, no_telp, tgl_transaksi)" +
+                            "VALUES (@id, @pelanggan, @no, @tgl);";
 
                     koneksi.Open();
                     perintah = new MySqlCommand(query, koneksi);
 
                     // Menambahkan parameter ke query
                     perintah.Parameters.AddWithValue("@id", textBox1.Text);
-                    perintah.Parameters.AddWithValue("@tgl", formattedDate);
                     perintah.Parameters.AddWithValue("@pelanggan", textBox2.Text);
-                    perintah.Parameters.AddWithValue("@no", textBox3.Text);
+                    perintah.Parameters.AddWithValue("@no", textBox3.Text);  // Nomor telepon diambil dari textBox3
+                    perintah.Parameters.AddWithValue("@tgl", formattedDate);
 
+                    // Eksekusi query
                     adapter = new MySqlDataAdapter(perintah);
                     int res = perintah.ExecuteNonQuery();
                     koneksi.Close();
@@ -285,7 +287,7 @@ namespace UI_Project
                     if (res == 1)
                     {
                         MessageBox.Show("Insert Data Sukses ...");
-                        CustomerM_Load(null, null);
+                        CustomerM_Load(null, null); // Memuat ulang data
                     }
                     else
                     {
@@ -301,6 +303,8 @@ namespace UI_Project
             {
                 MessageBox.Show(ex.ToString());
             }
+
+
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -401,6 +405,11 @@ namespace UI_Project
         {
             drugDisposal dis = new drugDisposal();
             dis.Show();
+        }
+
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void button2_Click_1(object sender, EventArgs e)

@@ -59,12 +59,39 @@ namespace UI_Project
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
                     string formattedDate2 = dateTimePicker2.Value.ToString("yyyy-MM-dd");
 
-                    // Gunakan "using" statement untuk memastikan koneksi ditutup otomatis
                     using (MySqlConnection koneksi = new MySqlConnection(alamat))
                     {
-                        koneksi.Open(); // Membuka koneksi hanya sekali di dalam blok 'using'
+                        koneksi.Open();
 
-                        // Query untuk menambahkan obat
+                        int jumlahDikurangi = Convert.ToInt32(textBox2.Text); // Total jumlah stok yang ingin dikurangi
+                        string drugName = comboBox1.Text;
+
+                        // Mengambil stok berdasarkan batch
+                        string selectBatchQuery = "SELECT nomor_bench, jumlah FROM stok_masuk WHERE nama_obat = @nama AND jumlah > 0 ORDER BY nomor_bench ASC;";
+                        MySqlCommand selectBatchCommand = new MySqlCommand(selectBatchQuery, koneksi);
+                        selectBatchCommand.Parameters.AddWithValue("@nama", drugName);
+
+                        // Membaca semua batch terlebih dahulu
+                        List<Tuple<int, int>> batches = new List<Tuple<int, int>>();
+                        using (MySqlDataReader reader = selectBatchCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int nomorBench = reader.GetInt32("nomor_bench");
+                                int jumlahBatch = reader.GetInt32("jumlah");
+                                batches.Add(Tuple.Create(nomorBench, jumlahBatch));
+                            }
+                        }
+
+                        // Cek apakah stok di semua batch mencukupi
+                        int totalStokBatch = batches.Sum(batch => batch.Item2);
+                        if (totalStokBatch < jumlahDikurangi)
+                        {
+                            MessageBox.Show("Stok tidak cukup pada batch yang tersedia.");
+                            return; // Batalkan proses jika stok batch tidak mencukupi
+                        }
+
+                        // Lanjutkan ke proses INSERT jika stok mencukupi
                         string query = "INSERT INTO obat (id_obat, nama_obat, stok, harga_jual, tanggal_kadaluarsa, tgl_masuk, kategori, satuan, deskripsi) " +
                                        "VALUES (@id, @nama_obat, @stok, @harga_jual, @tanggal_kadaluarsa, @masuk, @kategori, @satuan, @deskripsi);";
 
@@ -80,32 +107,11 @@ namespace UI_Project
                             perintah.Parameters.AddWithValue("@satuan", textBox6.Text);
                             perintah.Parameters.AddWithValue("@deskripsi", textBox5.Text);
 
-                            // Menjalankan perintah insert untuk tabel obat hanya sekali
                             int res = perintah.ExecuteNonQuery();
 
                             if (res == 1)
                             {
-                                int jumlahDikurangi = Convert.ToInt32(textBox2.Text); // Total jumlah stok yang ingin dikurangi
-                                string drugName = comboBox1.Text;
-
-                                // Mengambil stok berdasarkan batch
-                                string selectBatchQuery = "SELECT nomor_bench, jumlah FROM stok_masuk WHERE nama_obat = @nama AND jumlah > 0 ORDER BY nomor_bench ASC;";
-                                MySqlCommand selectBatchCommand = new MySqlCommand(selectBatchQuery, koneksi);
-                                selectBatchCommand.Parameters.AddWithValue("@nama", drugName);
-
-                                // Membaca semua batch terlebih dahulu
-                                List<Tuple<int, int>> batches = new List<Tuple<int, int>>();
-                                using (MySqlDataReader reader = selectBatchCommand.ExecuteReader())
-                                {
-                                    while (reader.Read())
-                                    {
-                                        int nomorBench = reader.GetInt32("nomor_bench");
-                                        int jumlahBatch = reader.GetInt32("jumlah");
-                                        batches.Add(Tuple.Create(nomorBench, jumlahBatch));
-                                    }
-                                }
-
-                                // Setelah membaca, sekarang lakukan pengurangan stok per batch
+                                // Lakukan pengurangan stok per batch
                                 foreach (var batch in batches)
                                 {
                                     if (jumlahDikurangi <= 0) break;
@@ -113,46 +119,35 @@ namespace UI_Project
                                     int nomorBench = batch.Item1;
                                     int jumlahBatch = batch.Item2;
 
-                                    int jumlahPengurangan = Math.Min(jumlahDikurangi, jumlahBatch); // Kurangi sesuai batch
+                                    int jumlahPengurangan = Math.Min(jumlahDikurangi, jumlahBatch);
 
-                                    // Update stok di batch ini
                                     string updateBatchQuery = "UPDATE stok_masuk SET jumlah = jumlah - @jumlahPengurangan WHERE nomor_bench = @nomorBench AND nama_obat = @namaObat;";
                                     MySqlCommand updateBatchCommand = new MySqlCommand(updateBatchQuery, koneksi);
                                     updateBatchCommand.Parameters.AddWithValue("@jumlahPengurangan", jumlahPengurangan);
                                     updateBatchCommand.Parameters.AddWithValue("@nomorBench", nomorBench);
                                     updateBatchCommand.Parameters.AddWithValue("@namaObat", drugName);
 
-                                    updateBatchCommand.ExecuteNonQuery(); // Kurangi stok batch ini
-                                    jumlahDikurangi -= jumlahPengurangan; // Kurangi jumlah sisa yang perlu dikurangi
+                                    updateBatchCommand.ExecuteNonQuery();
+                                    jumlahDikurangi -= jumlahPengurangan;
                                 }
 
-                                // Jika stok batch berhasil dikurangi, perbarui stok pada tabel obat hanya sekali
-                                if (jumlahDikurangi == 0)
+                                // Perbarui stok pada tabel obat
+                                string updateObatQuery = "UPDATE obat SET stok = stok WHERE nama_obat = @nama;";
+                                MySqlCommand updateObatCommand = new MySqlCommand(updateObatQuery, koneksi);
+                                updateObatCommand.Parameters.AddWithValue("@nama", drugName);
+
+                                int obatUpdateRes = updateObatCommand.ExecuteNonQuery();
+
+                                if (obatUpdateRes > 0)
                                 {
-                                    // Update stok pada tabel obat setelah pengurangan
-                                    string updateObatQuery = "UPDATE obat SET stok = stok  WHERE nama_obat = @nama;";
-                                    MySqlCommand updateObatCommand = new MySqlCommand(updateObatQuery, koneksi);
-            
-                                    updateObatCommand.Parameters.AddWithValue("@nama", drugName);
-
-                                    int obatUpdateRes = updateObatCommand.ExecuteNonQuery();
-
-                                    if (obatUpdateRes > 0)
-                                    {
-                                        MessageBox.Show("Insert Data Sukses dan Stok Berhasil di update.");
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show("Insert Data Sukses tetapi gagal memperbarui stok di tabel obat.");
-                                    }
+                                    MessageBox.Show("Insert Data Sukses dan Stok Berhasil di update.");
                                 }
                                 else
                                 {
-                                    MessageBox.Show("Stok tidak cukup pada batch yang tersedia.");
+                                    MessageBox.Show("Insert Data Sukses tetapi gagal memperbarui stok di tabel obat.");
                                 }
 
-                                // Refresh DataGridView
-                                Drugandstock_Load(null, null); // Update tampilan data stok
+                                Drugandstock_Load(null, null); // Refresh tampilan data stok
                             }
                             else
                             {
@@ -170,6 +165,7 @@ namespace UI_Project
             {
                 MessageBox.Show(ex.ToString());
             }
+
 
 
 
