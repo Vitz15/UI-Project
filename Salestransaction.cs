@@ -238,9 +238,22 @@ namespace UI_Project
             Login login = new Login();
             login.Show();
         }
-
+        private void DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+         
+            if ((e.ColumnIndex == 5 || e.ColumnIndex == 6) && e.Value != null)
+            {
+            
+                if (decimal.TryParse(e.Value.ToString(), out decimal value))
+                {
+                    e.Value = $"Rp {value:N0}"; 
+                    e.FormattingApplied = true;
+                }
+            }
+        }
         private void Salestransaction_Load(object sender, EventArgs e)
         {
+            dataGridView1.CellFormatting += DataGridView1_CellFormatting;
             try
             {
                 // Pastikan koneksi ditutup sebelum membuka yang baru

@@ -330,10 +330,23 @@ namespace UI_Project
 
 
 
+        private void DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
 
+            if ((e.ColumnIndex == 4 ) && e.Value != null)
+            {
+
+                if (decimal.TryParse(e.Value.ToString(), out decimal value))
+                {
+                    e.Value = $"Rp {value:N0}";
+                    e.FormattingApplied = true;
+                }
+            }
+        }
 
         private void Drugandstock_Load(object sender, EventArgs e)
         {
+            dataGridView1.CellFormatting += DataGridView1_CellFormatting;
             MoveExpiredMedicines();
             try
             {

@@ -217,9 +217,25 @@ namespace UI_Project
                 CalculateFinancialData();
             }
         }
+        private void DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Pastikan index kolom benar, misalnya kolom ke-3 (index 2) adalah kolom finansial
+            if ((e.ColumnIndex == 1 || e.ColumnIndex == 2 || e.ColumnIndex == 3) && e.Value != null)
+            {
+                // Coba parse nilai ke tipe decimal untuk memastikan format dapat diterapkan
+                if (decimal.TryParse(e.Value.ToString(), out decimal value))
+                {
+                    e.Value = $"Rp {value:N0}"; // Tambahkan prefix "Rp" dengan format ribuan
+                    e.FormattingApplied = true;
+                }
+            }
+        }
+
+
 
         private void FinancialS_Load(object sender, EventArgs e)
         {
+            dataGridView1.CellFormatting += DataGridView1_CellFormatting;
             string[] months = new string[]
             {
                 "Januari", "Februari", "Maret", "April", "Mei", "Juni",

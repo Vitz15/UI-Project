@@ -339,12 +339,12 @@
             this.button5.BackColor = System.Drawing.Color.Black;
             this.button5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button5.ForeColor = System.Drawing.Color.White;
-            this.button5.Location = new System.Drawing.Point(1375, 447);
+            this.button5.Location = new System.Drawing.Point(1331, 447);
             this.button5.Margin = new System.Windows.Forms.Padding(0);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(117, 44);
+            this.button5.Size = new System.Drawing.Size(240, 44);
             this.button5.TabIndex = 87;
-            this.button5.Text = "Search";
+            this.button5.Text = "Search by Name";
             this.button5.UseVisualStyleBackColor = false;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
@@ -406,9 +406,9 @@
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(1517, 461);
+            this.textBox3.Location = new System.Drawing.Point(1588, 461);
             this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(456, 22);
+            this.textBox3.Size = new System.Drawing.Size(385, 22);
             this.textBox3.TabIndex = 93;
             // 
             // label5

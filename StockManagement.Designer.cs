@@ -399,9 +399,9 @@
             this.button5.Location = new System.Drawing.Point(1414, 627);
             this.button5.Margin = new System.Windows.Forms.Padding(0);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(117, 44);
+            this.button5.Size = new System.Drawing.Size(238, 44);
             this.button5.TabIndex = 119;
-            this.button5.Text = "Search";
+            this.button5.Text = "Search by Bench";
             this.button5.UseVisualStyleBackColor = false;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
@@ -417,9 +417,9 @@
             // 
             // textBox8
             // 
-            this.textBox8.Location = new System.Drawing.Point(1552, 641);
+            this.textBox8.Location = new System.Drawing.Point(1667, 641);
             this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new System.Drawing.Size(407, 22);
+            this.textBox8.Size = new System.Drawing.Size(292, 22);
             this.textBox8.TabIndex = 121;
             this.textBox8.TextChanged += new System.EventHandler(this.textBox8_TextChanged);
             // 
