@@ -48,8 +48,6 @@
             this.label13 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.textBox5 = new System.Windows.Forms.TextBox();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.textBox7 = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
@@ -63,6 +61,8 @@
             this.label15 = new System.Windows.Forms.Label();
             this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.comboBox3 = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -292,20 +292,6 @@
             this.textBox5.Size = new System.Drawing.Size(384, 22);
             this.textBox5.TabIndex = 82;
             // 
-            // textBox6
-            // 
-            this.textBox6.Location = new System.Drawing.Point(1419, 223);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(384, 22);
-            this.textBox6.TabIndex = 83;
-            // 
-            // textBox7
-            // 
-            this.textBox7.Location = new System.Drawing.Point(734, 373);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(467, 22);
-            this.textBox7.TabIndex = 84;
-            // 
             // button3
             // 
             this.button3.BackColor = System.Drawing.Color.Gray;
@@ -456,6 +442,56 @@
             this.comboBox1.TabIndex = 110;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
+            // comboBox2
+            // 
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Items.AddRange(new object[] {
+            "Analgesik (Pereda Nyeri)",
+            "Antiinflamasi (Anti Radang)",
+            "Antibiotik",
+            "Antidiare",
+            "Antipiretik (Penurun Panas)",
+            "Antialergi",
+            "Antihipertensi (Obat Darah Tinggi)",
+            "Antidiabetes",
+            "Antiasma",
+            "Antigastritis (Maag)",
+            "Multivitamin dan Suplemen",
+            "Obat Batuk dan Flu",
+            "Obat Mata",
+            "Obat Kulit",
+            "Obat Jantung",
+            "Obat Cacingan"});
+            this.comboBox2.Location = new System.Drawing.Point(734, 373);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(467, 24);
+            this.comboBox2.TabIndex = 111;
+            this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            // 
+            // comboBox3
+            // 
+            this.comboBox3.FormattingEnabled = true;
+            this.comboBox3.Items.AddRange(new object[] {
+            "Mililiter (ml)",
+            "Liter (L)",
+            "Botol (btl)",
+            "Ampul (amp)",
+            "Vial (vial)",
+            "Gram (g)",
+            "Miligram (mg)",
+            "Sachet (sct)",
+            "Pot (pot)",
+            "Tablet (tab)",
+            "Kapsul (kap)",
+            "Pil (pil)",
+            "Strip (str)",
+            "Box/Kotak (box)",
+            "Blister (bls)"});
+            this.comboBox3.Location = new System.Drawing.Point(1419, 223);
+            this.comboBox3.Name = "comboBox3";
+            this.comboBox3.Size = new System.Drawing.Size(384, 24);
+            this.comboBox3.TabIndex = 112;
+            // 
             // Drugandstock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -463,6 +499,8 @@
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1902, 1033);
+            this.Controls.Add(this.comboBox3);
+            this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.dateTimePicker2);
             this.Controls.Add(this.label15);
@@ -475,8 +513,6 @@
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
-            this.Controls.Add(this.textBox7);
-            this.Controls.Add(this.textBox6);
             this.Controls.Add(this.textBox5);
             this.Controls.Add(this.label14);
             this.Controls.Add(this.label13);
@@ -529,8 +565,6 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.TextBox textBox7;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
@@ -544,5 +578,7 @@
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox comboBox3;
     }
 }

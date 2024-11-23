@@ -103,8 +103,8 @@ namespace UI_Project
                             perintah.Parameters.AddWithValue("@harga_jual", textBox4.Text);
                             perintah.Parameters.AddWithValue("@tanggal_kadaluarsa", formattedDate);
                             perintah.Parameters.AddWithValue("@masuk", formattedDate2);
-                            perintah.Parameters.AddWithValue("@kategori", textBox7.Text);
-                            perintah.Parameters.AddWithValue("@satuan", textBox6.Text);
+                            perintah.Parameters.AddWithValue("@kategori", comboBox2.Text);
+                            perintah.Parameters.AddWithValue("@satuan", comboBox3.Text);
                             perintah.Parameters.AddWithValue("@deskripsi", textBox5.Text);
 
                             int res = perintah.ExecuteNonQuery();
@@ -395,8 +395,6 @@ namespace UI_Project
                     textBox8.Clear();
                     textBox2.Clear();
                     textBox4.Clear();
-                    textBox7.Clear();
-                    textBox6.Clear();
                     textBox5.Clear();
                     button5.Enabled = true;
                 koneksi.Close();
@@ -447,8 +445,8 @@ namespace UI_Project
                             textBox2.Text = kolom["stok"].ToString();
                         
                             textBox4.Text = kolom["harga_jual"].ToString();
-                            textBox7.Text = kolom["kategori"].ToString();
-                            textBox6.Text = kolom["satuan"].ToString();
+                            comboBox2.Text = kolom["kategori"].ToString();
+                            comboBox3.Text = kolom["satuan"].ToString();
                             textBox5.Text = kolom["deskripsi"].ToString();
                             comboBox1.Text = kolom["nama_obat"].ToString();
 
@@ -505,7 +503,7 @@ namespace UI_Project
         {
             try
             {
-                if (comboBox1.Text != "" && textBox2.Text != ""  && textBox4.Text != "" && textBox7.Text != "" && textBox6.Text != "" && textBox5.Text != "" && textBox8.Text !="")
+                if (comboBox1.Text != "" && textBox2.Text != ""  && textBox4.Text != "" && comboBox2.Text != "" && comboBox3.Text != "" && textBox5.Text != "" && textBox8.Text !="")
                 {
                     string formattedDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
 
@@ -520,8 +518,8 @@ namespace UI_Project
                     perintah.Parameters.AddWithValue("@stok", textBox2.Text);
                     perintah.Parameters.AddWithValue("@harga_jual", textBox4.Text);
                     perintah.Parameters.AddWithValue("@tanggal_kadaluarsa", formattedDate);
-                    perintah.Parameters.AddWithValue("@kategori", textBox7.Text);
-                    perintah.Parameters.AddWithValue("@satuan", textBox6.Text);
+                    perintah.Parameters.AddWithValue("@kategori", comboBox2.Text);
+                    perintah.Parameters.AddWithValue("@satuan", comboBox3.Text);
                     perintah.Parameters.AddWithValue("@deskripsi", textBox5.Text);
                     perintah.Parameters.AddWithValue("@id", textBox8.Text); // Asumsi textBox1 untuk id
 
@@ -615,6 +613,11 @@ namespace UI_Project
                     koneksi.Close();
                 }
             }
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void label2_Click(object sender, EventArgs e)
