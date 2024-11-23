@@ -73,13 +73,13 @@ namespace UI_Project
 
         private void label36_Click(object sender, EventArgs e)
         {
-            CustomerM customer = new CustomerM();
+            SubscribedCostumer customer = new SubscribedCostumer();
             customer.Show();
         }
 
         private void label8_Click(object sender, EventArgs e)
         {
-            CustomerM customer = new CustomerM();
+            SubscribedCostumer customer = new SubscribedCostumer();
             customer.Show();
         }
 
@@ -186,7 +186,7 @@ namespace UI_Project
 
         private void pictureBox3_Click(object sender, EventArgs e)
         {
-            CustomerM customer = new CustomerM();
+            SubscribedCostumer customer = new SubscribedCostumer();
             customer.Show();
         }
 

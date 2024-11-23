@@ -71,7 +71,7 @@ namespace UI_Project
 
         private void label36_Click_1(object sender, EventArgs e)
         {
-            CustomerM customer = new CustomerM();
+            SubscribedCostumer customer = new SubscribedCostumer();
             customer.Show();
         }
 

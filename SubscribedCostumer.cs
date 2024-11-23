@@ -118,8 +118,7 @@ namespace UI_Project
 
         private void button2_Click(object sender, EventArgs e)
         {
-            CustomerM cus = new CustomerM();
-            cus.Show();
+          
         }
 
         private void label3_Click(object sender, EventArgs e)
@@ -352,6 +351,11 @@ namespace UI_Project
             {
                 MessageBox.Show(ex.ToString());
             }
+        }
+
+        private void label36_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void label13_Click(object sender, EventArgs e)
